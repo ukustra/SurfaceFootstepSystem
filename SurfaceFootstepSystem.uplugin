@@ -1,0 +1,37 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "Surface Footstep System",
+	"Description": "A plugin for generating different footstep FXes, depending on the Surface Type.",
+	"Category": "FX",
+	"CreatedBy": "Urszula Kustra",
+	"CreatedByURL": "http://ukustra.com",
+	"DocsURL": "https://www.dropbox.com/s/o9r59lta0mxahph/SFS_Docs.pdf",
+	"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/content/d605a2cceb8546b39accf458c022b0df",
+	"SupportURL": "",
+	"EngineVersion": "4.23.0",
+	"CanContainContent": true,
+	"Installed": true,
+	"Modules": [
+		{
+			"Name": "SurfaceFootstepSystem",
+			"Type": "Runtime",
+			"LoadingPhase": "Default",
+			"BlacklistPlatforms": [
+				"IOS"
+			]
+		},
+		{
+			"Name": "SurfaceFootstepSystemEditor",
+			"Type": "Editor",
+			"LoadingPhase": "PostEngineInit"
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "Niagara",
+			"Enabled": true
+		}
+	]
+}

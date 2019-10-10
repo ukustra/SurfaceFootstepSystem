@@ -1,0 +1,3 @@
+Surface Footstep System has the same license as other Unreal Engine Marketplace assets.
+
+For more information, please visit: https://www.unrealengine.com/en-US/marketplace-faq?active=usage
