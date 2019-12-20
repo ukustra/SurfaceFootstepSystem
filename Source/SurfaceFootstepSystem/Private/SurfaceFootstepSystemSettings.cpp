@@ -56,7 +56,7 @@ bool USurfaceFootstepSystemSettings::GetTraceComplex() const
 
 int32 USurfaceFootstepSystemSettings::GetPoolSize() const
 {
-	return MaxPoolSize > 0 ? MaxPoolSize : 0;
+	return MaxPoolSize > 1 ? MaxPoolSize : 1;
 }
 
 float USurfaceFootstepSystemSettings::GetDefaultPoolingLifeSpan() const

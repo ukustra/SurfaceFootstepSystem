@@ -30,7 +30,7 @@ protected:
 	bool bTraceComplex;
 
 	/** Maximum amount of spawned Footstep Actors. */
-	UPROPERTY(config, EditDefaultsOnly, Category = "Pooling", meta = (ClampMin = 0))
+	UPROPERTY(config, EditDefaultsOnly, Category = "Pooling", meta = (ClampMin = 1))
 	int32 MaxPoolSize;
 
 	/** The default visibility time of spawned Footstep Actors. */

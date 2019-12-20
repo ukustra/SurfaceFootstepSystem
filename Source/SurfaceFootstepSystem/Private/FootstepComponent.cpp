@@ -10,7 +10,9 @@ UFootstepComponent::UFootstepComponent(const FObjectInitializer& ObjectInitializ
 	PrimaryComponentTick.bCanEverTick = false;
 	PrimaryComponentTick.bStartWithTickEnabled = false;
 
-	if (USurfaceFootstepSystemSettings::Get())
+	FootstepSettings = USurfaceFootstepSystemSettings::Get();
+
+	if (FootstepSettings)
 	{
 		FootstepSettings = USurfaceFootstepSystemSettings::Get();
 		TraceLength = FootstepSettings->GetDefaultTraceLength();
@@ -25,7 +27,7 @@ bool UFootstepComponent::GetPlaySound2D() const
 	{
 		if (const AController* Controller = PawnOwner->GetController())
 		{
-			return FootstepSettings->GetPlaySound2D() && Controller->IsLocalPlayerController() ? true : false;
+			return FootstepSettings->GetPlaySound2D() && Controller->IsLocalPlayerController();
 		}
 	}
 	return false;
@@ -45,31 +47,41 @@ bool UFootstepComponent::CreateFootstepLineTrace(const FVector Start, const FVec
 {
 	if (!GetWorld() && !FootstepSettings) { return false; }
 
-	const FVector End = Start + (DirectionNormalVector * TraceLength);
+	// Ensure DirVector is normalized
+	const FVector DirVector = DirectionNormalVector.Size() == 1.f ? DirectionNormalVector : DirectionNormalVector.GetSafeNormal();
+	const FVector End = Start + (DirVector * TraceLength);
 
-	FCollisionQueryParams Params;
-	Params.bReturnPhysicalMaterial = true;
-	Params.bTraceComplex = FootstepSettings->GetTraceComplex();
-	Params.AddIgnoredActor(GetOwner());
-	Params.AddIgnoredActors(ActorsToIgnore);
+	const FCollisionQueryParams QueryParams = Invoke([this]()->FCollisionQueryParams {
+		FCollisionQueryParams Params;
+		Params.bReturnPhysicalMaterial = true;
+		Params.bTraceComplex = FootstepSettings->GetTraceComplex();
+		Params.AddIgnoredActor(GetOwner());
+		Params.AddIgnoredActors(ActorsToIgnore);
 
-#if !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
-	if (bShowDebug)
-	{
-		const FName TraceTag = TEXT("Debug");
-		Params.TraceTag = TraceTag;
+	#if !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
+		if (bShowDebug)
+		{
+			const FName TraceTag = TEXT("Debug");
+			Params.TraceTag = TraceTag;
 
-		GetWorld()->DebugDrawTraceTag = TraceTag;
-	}
-#endif
+			GetWorld()->DebugDrawTraceTag = TraceTag;
+		}
+	#endif
 
-	FCollisionObjectQueryParams ObjectParams;
-	for (ECollisionChannel ObjectType : FootstepSettings->GetFootstepObjectTypes())
-	{
-		ObjectParams.AddObjectTypesToQuery(ObjectType);
-	}
+		return Params;
+	});
 
-	return GetWorld()->LineTraceSingleByObjectType(OutHit, Start, End, ObjectParams, Params);
+	const FCollisionObjectQueryParams ObjectParams = Invoke([this]()->FCollisionObjectQueryParams {
+		FCollisionObjectQueryParams Params;
+		for (ECollisionChannel ObjectType : FootstepSettings->GetFootstepObjectTypes())
+		{
+			Params.AddObjectTypesToQuery(ObjectType);
+		}
+
+		return Params;
+	});
+
+	return GetWorld()->LineTraceSingleByObjectType(OutHit, Start, End, ObjectParams, QueryParams);
 
 }
 

@@ -48,7 +48,7 @@ void UAnimNotify_SurfaceFootstep::Notify(USkeletalMeshComponent* MeshComp, UAnim
 		return;
 	}
 
-	// Ensure the World Settings implements Footstep Interface
+	// Ensure the World Settings class implements Footstep Interface
 	UFoostepPoolingManagerComponent* PoolingManager = nullptr;
 	if (const IFootstepInterface* FootstepInterface = Cast<IFootstepInterface>(MeshComp->GetWorld()->GetWorldSettings()))
 	{
@@ -69,57 +69,52 @@ void UAnimNotify_SurfaceFootstep::Notify(USkeletalMeshComponent* MeshComp, UAnim
 	const bool bUseFootSocketLocation = TraceFromFootSocket() && MeshComp->DoesSocketExist(FootSocket);
 	const FVector StartTrace = bUseFootSocketLocation ? MeshComp->GetSocketLocation(FootSocket) : MeshComp->GetComponentLocation();
 
-	FVector DirectionVector = FVector(0.f);
-	if (bUseFootSocketLocation)
-	{
-		const FRotator SocketRotation = MeshComp->GetSocketRotation(FootSocket);
+	const FVector DirectionVector = Invoke([this, bUseFootSocketLocation, MeshComp]()->FVector {
+		const FVector DefaultDirVector = FVector::DownVector;
 
-		switch (FootstepTraceDirection)
+		if (bUseFootSocketLocation)
 		{
-		case EFootstepTraceDirection::Down:
-			DirectionVector = FRotationMatrix(SocketRotation).GetScaledAxis(EAxis::Z) * -1.f;
-			break;
-		case EFootstepTraceDirection::Up:
-			DirectionVector = FRotationMatrix(SocketRotation).GetScaledAxis(EAxis::Z);
-			break;
-		case EFootstepTraceDirection::Forward:
-			DirectionVector = SocketRotation.Vector();
-			break;
-		case EFootstepTraceDirection::Backward:
-			DirectionVector = SocketRotation.Vector() * -1.f;
-			break;
-		case EFootstepTraceDirection::Right:
-			DirectionVector = FRotationMatrix(SocketRotation).GetScaledAxis(EAxis::Y);
-			break;
-		case EFootstepTraceDirection::Left:
-			DirectionVector = FRotationMatrix(SocketRotation).GetScaledAxis(EAxis::Y) * -1.f;
-			break;
+			const FRotator SocketRotation = MeshComp->GetSocketRotation(FootSocket);
+
+			switch (FootstepTraceDirection)
+			{
+			case EFootstepTraceDirection::Down:
+				return FRotationMatrix(SocketRotation).GetScaledAxis(EAxis::Z) * -1.f;
+			case EFootstepTraceDirection::Up:
+				return FRotationMatrix(SocketRotation).GetScaledAxis(EAxis::Z);
+			case EFootstepTraceDirection::Forward:
+				return SocketRotation.Vector();
+			case EFootstepTraceDirection::Backward:
+				return SocketRotation.Vector() * -1.f;
+			case EFootstepTraceDirection::Right:
+				return FRotationMatrix(SocketRotation).GetScaledAxis(EAxis::Y);
+			case EFootstepTraceDirection::Left:
+				return FRotationMatrix(SocketRotation).GetScaledAxis(EAxis::Y) * -1.f;
+			default:
+				return DefaultDirVector;
+			}
 		}
-	}
-	else
-	{
-		switch (FootstepTraceDirection)
+		else
 		{
-		case EFootstepTraceDirection::Down:
-			DirectionVector = MeshComp->GetUpVector() * -1.f;
-			break;
-		case EFootstepTraceDirection::Up:
-			DirectionVector = MeshComp->GetUpVector();
-			break;
-		case EFootstepTraceDirection::Forward:
-			DirectionVector = MeshComp->GetForwardVector();
-			break;
-		case EFootstepTraceDirection::Backward:
-			DirectionVector = MeshComp->GetForwardVector() * -1.f;
-			break;
-		case EFootstepTraceDirection::Right:
-			DirectionVector = MeshComp->GetRightVector();
-			break;
-		case EFootstepTraceDirection::Left:
-			DirectionVector = MeshComp->GetRightVector() * -1.f;
-			break;
+			switch (FootstepTraceDirection)
+			{
+			case EFootstepTraceDirection::Down:
+				return MeshComp->GetUpVector() * -1.f;
+			case EFootstepTraceDirection::Up:
+				return MeshComp->GetUpVector();
+			case EFootstepTraceDirection::Forward:
+				return MeshComp->GetForwardVector();
+			case EFootstepTraceDirection::Backward:
+				return MeshComp->GetForwardVector() * -1.f;
+			case EFootstepTraceDirection::Right:
+				return MeshComp->GetRightVector();
+			case EFootstepTraceDirection::Left:
+				return MeshComp->GetRightVector() * -1.f;
+			default:
+				return DefaultDirVector;
+			}
 		}
-	}
+	});
 
 	FHitResult TraceHitResult;
 	FootstepComponent->CreateFootstepLineTrace(StartTrace, DirectionVector, TraceHitResult);
@@ -127,19 +122,7 @@ void UAnimNotify_SurfaceFootstep::Notify(USkeletalMeshComponent* MeshComp, UAnim
 	if (!TraceHitResult.bBlockingHit) { return; }
 
 	// Get the Physical Material from the TraceHitResult
-	UPhysicalMaterial* PhysMat = nullptr;
-	if (TraceHitResult.PhysMaterial.IsValid())
-	{
-		PhysMat = TraceHitResult.PhysMaterial.Get();
-	}
-	else if (TraceHitResult.GetComponent())
-	{
-		const FBodyInstance* BodyInstance = TraceHitResult.GetComponent()->GetBodyInstance();
-		if (BodyInstance)
-		{
-			PhysMat = BodyInstance->GetSimplePhysicalMaterial();
-		}
-	}
+	const UPhysicalMaterial* PhysMat = GetPhysicalMaterial(TraceHitResult);
 
 	if (!PhysMat) { return; }
 
@@ -174,12 +157,12 @@ void UAnimNotify_SurfaceFootstep::Notify(USkeletalMeshComponent* MeshComp, UAnim
 				FootstepActor->SetPoolingActive(false);
 
 				const FTransform WorldTransform = FTransform(FRotationMatrix::MakeFromZ(TraceHitResult.ImpactNormal).Rotator(), TraceHitResult.ImpactPoint, FVector(1.f));
-				const FVector RelLocationVFX = FootstepData->GetRelScaleParticle();
+				const FVector RelScaleVFX = FootstepData->GetRelScaleParticle();
 
 				FootstepActor->SetActorTransform(WorldTransform);
 
 				FootstepActor->InitSound(FootstepSound, FootstepData->GetVolume(), FootstepData->GetPitch(), FootstepComponent->GetPlaySound2D(), FootstepData->GetAttenuationOverride(), FootstepData->GetConcurrencyOverride());
-				FootstepActor->InitParticle(FootstepParticle, RelLocationVFX);
+				FootstepActor->InitParticle(FootstepParticle, RelScaleVFX);
 
 				FootstepActor->SetLifeSpan(FootstepData->GetFootstepLifeSpan());
 				FootstepActor->SetPoolingActive(true);
@@ -196,6 +179,23 @@ FString UAnimNotify_SurfaceFootstep::GetNotifyName_Implementation() const
 bool UAnimNotify_SurfaceFootstep::TraceFromFootSocket() const
 {
 	return bTraceFromFootSocket && FootSocket != NAME_None;
+}
+
+UPhysicalMaterial* UAnimNotify_SurfaceFootstep::GetPhysicalMaterial(const FHitResult& HitResult) const
+{
+	if (HitResult.PhysMaterial.IsValid())
+	{
+		return HitResult.PhysMaterial.Get();
+	}
+	else if (HitResult.GetComponent())
+	{
+		if (const FBodyInstance* BodyInstance = HitResult.GetComponent()->GetBodyInstance())
+		{
+			return BodyInstance->GetSimplePhysicalMaterial();
+		}
+	}
+
+	return nullptr;
 }
 
 FString UAnimNotify_SurfaceFootstep::GetActorName(const AActor* Actor) const

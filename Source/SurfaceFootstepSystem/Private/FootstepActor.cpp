@@ -55,7 +55,7 @@ void AFootstepActor::SetPoolingActive(bool bInActive)
 		AudioComponent->Play();
 		bUseNiagara ? NiagaraComponent->Activate(true) : ParticleComponent->Activate(true);
 	}
-	else if (!bInActive && bPoolingActive)
+	else if (bPoolingActive)
 	{
 		bPoolingActive = false;
 		AudioComponent->Stop();
