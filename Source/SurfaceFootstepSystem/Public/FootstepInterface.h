@@ -1,4 +1,4 @@
-// Copyright 2019 Urszula Kustra. All Rights Reserved.
+// Copyright 2019-2020 Urszula Kustra. All Rights Reserved.
 
 #pragma once
 
@@ -7,7 +7,7 @@
 #include "FootstepInterface.generated.h"
 
 class UFootstepComponent;
-class UFoostepPoolingManagerComponent;
+class UFoostepPoolingManager;
 
 UINTERFACE(BlueprintType)
 class UFootstepInterface : public UInterface
@@ -26,5 +26,5 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "SurfaceFootstepSystem")
 	UFootstepComponent* GetFootstepComponent() const;
 
-	virtual UFoostepPoolingManagerComponent* GetPoolingManagerComponent() const;
+	virtual UFoostepPoolingManager* GetPoolingManager() const;
 };

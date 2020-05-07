@@ -1,4 +1,4 @@
-// Copyright 2019 Urszula Kustra. All Rights Reserved.
+// Copyright 2019-2020 Urszula Kustra. All Rights Reserved.
 
 #include "AnimNotify_SurfaceFootstep.h"
 #include "FootstepInterface.h"
@@ -6,7 +6,7 @@
 #include "FootstepActor.h"
 #include "FootstepDataAsset.h"
 #include "SurfaceFootstepSystemSettings.h"
-#include "FoostepPoolingManagerComponent.h"
+#include "FoostepPoolingManager.h"
 #include "FootstepTypes.h"
 #include "Engine.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
@@ -35,7 +35,7 @@ void UAnimNotify_SurfaceFootstep::Notify(USkeletalMeshComponent* MeshComp, UAnim
 	Super::Notify(MeshComp, Animation);
 
 	// Check the most important conditions
-	if ( !(FootstepSettings && MeshComp && MeshComp->GetWorld() && MeshComp->GetWorld()->GetNetMode() != NM_DedicatedServer && MeshComp->GetOwner() && MeshComp->GetOwner()->GetClass()->ImplementsInterface(UFootstepInterface::StaticClass())) ) { return; }
+	if ( !(FootstepSettings && MeshComp && MeshComp->GetWorld() && MeshComp->GetNetMode() != NM_DedicatedServer && MeshComp->GetOwner() && MeshComp->GetOwner()->GetClass()->ImplementsInterface(UFootstepInterface::StaticClass())) ) { return; }
 
 	if (FootstepSettings->GetCategoriesNum() == 0)
 	{
@@ -49,10 +49,10 @@ void UAnimNotify_SurfaceFootstep::Notify(USkeletalMeshComponent* MeshComp, UAnim
 	}
 
 	// Ensure the World Settings class implements Footstep Interface
-	UFoostepPoolingManagerComponent* PoolingManager = nullptr;
+	UFoostepPoolingManager* PoolingManager = nullptr;
 	if (const IFootstepInterface* FootstepInterface = Cast<IFootstepInterface>(MeshComp->GetWorld()->GetWorldSettings()))
 	{
-		PoolingManager = FootstepInterface->GetPoolingManagerComponent();
+		PoolingManager = FootstepInterface->GetPoolingManager();
 	}
 
 	if (!PoolingManager)
@@ -69,7 +69,7 @@ void UAnimNotify_SurfaceFootstep::Notify(USkeletalMeshComponent* MeshComp, UAnim
 	const bool bUseFootSocketLocation = TraceFromFootSocket() && MeshComp->DoesSocketExist(FootSocket);
 	const FVector StartTrace = bUseFootSocketLocation ? MeshComp->GetSocketLocation(FootSocket) : MeshComp->GetComponentLocation();
 
-	const FVector DirectionVector = Invoke([this, bUseFootSocketLocation, MeshComp]()->FVector {
+	const FVector DirectionVector = Invoke([this, bUseFootSocketLocation, MeshComp]()->FVector const {
 		const FVector DefaultDirVector = FVector::DownVector;
 
 		if (bUseFootSocketLocation)
@@ -117,9 +117,9 @@ void UAnimNotify_SurfaceFootstep::Notify(USkeletalMeshComponent* MeshComp, UAnim
 	});
 
 	FHitResult TraceHitResult;
-	FootstepComponent->CreateFootstepLineTrace(StartTrace, DirectionVector, TraceHitResult);
+	const bool bTracePerformed = FootstepComponent->CreateFootstepLineTrace(StartTrace, DirectionVector, TraceHitResult);
 
-	if (!TraceHitResult.bBlockingHit) { return; }
+	if (!(bTracePerformed && TraceHitResult.bBlockingHit)) { return; }
 
 	// Get the Physical Material from the TraceHitResult
 	const UPhysicalMaterial* PhysMat = GetPhysicalMaterial(TraceHitResult);
@@ -138,7 +138,7 @@ void UAnimNotify_SurfaceFootstep::Notify(USkeletalMeshComponent* MeshComp, UAnim
 			const FString SocketName = TraceFromFootSocket() ? FootSocket.ToString() : TEXT("ROOT");
 			const FString OwnerName = GetActorName(MeshComp->GetOwner());
 
-			const FString DebugMessage = TEXT("PhysMat: ") + PhysMatName + TEXT(", DataAsset: ") + DataAssetName + TEXT(", Anim: ") + AnimationName + TEXT(", Category: ") + CategoryName + TEXT(", Socket: ") + SocketName + TEXT(", Owner: ") + OwnerName;
+			const FString DebugMessage = TEXT("PhysMat: ") + PhysMatName + TEXT(", DataAsset: ") + DataAssetName + TEXT(", Anim: ") + AnimationName + TEXT(", Category: ") + CategoryName + TEXT(", Socket: ") + SocketName + TEXT(", Owner: ") + OwnerName + TEXT(", HitActor: ") + GetActorName(TraceHitResult.GetActor()) + TEXT(", HitComp: ") + TraceHitResult.GetComponent()->GetName();
 
 			GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, DebugMessage);
 			UE_LOG(LogFootstep, Log, TEXT("%s"), *DebugMessage);
@@ -156,7 +156,8 @@ void UAnimNotify_SurfaceFootstep::Notify(USkeletalMeshComponent* MeshComp, UAnim
 			{
 				FootstepActor->SetPoolingActive(false);
 
-				const FTransform WorldTransform = FTransform(FRotationMatrix::MakeFromZ(TraceHitResult.ImpactNormal).Rotator(), TraceHitResult.ImpactPoint, FVector(1.f));
+				const FQuat ActorQuat = FootstepParticle ? FRotationMatrix::MakeFromZ(TraceHitResult.ImpactNormal).ToQuat() : FQuat(EForceInit::ForceInitToZero);
+				const FTransform WorldTransform = FTransform(ActorQuat, TraceHitResult.ImpactPoint, FVector(1.f));
 				const FVector RelScaleVFX = FootstepData->GetRelScaleParticle();
 
 				FootstepActor->SetActorTransform(WorldTransform);

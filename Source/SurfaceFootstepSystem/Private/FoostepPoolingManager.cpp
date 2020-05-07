@@ -1,28 +1,28 @@
-// Copyright 2019 Urszula Kustra. All Rights Reserved.
+// Copyright 2019-2020 Urszula Kustra. All Rights Reserved.
 
-#include "FoostepPoolingManagerComponent.h"
+#include "FoostepPoolingManager.h"
 #include "SurfaceFootstepSystemSettings.h"
 #include "FootstepActor.h"
 #include "Logging/MessageLog.h"
 
 #define LOCTEXT_NAMESPACE "FFootstepPoolingManager"
 
-UFoostepPoolingManagerComponent::UFoostepPoolingManagerComponent(const FObjectInitializer& ObjectInitializer)
+UFoostepPoolingManager::UFoostepPoolingManager(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	PrimaryComponentTick.bCanEverTick = false;
-	PrimaryComponentTick.bStartWithTickEnabled = false;
 }
 
-void UFoostepPoolingManagerComponent::DestroyFootstepPool(const UObject* WorldContextObject)
+void UFoostepPoolingManager::DestroyFootstepPool(const UObject* WorldContextObject)
 {
 	if (!GEngine) { return; }
 
 	if (const UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull))
 	{
+		if (World->GetNetMode() == NM_DedicatedServer) { return; }
+
 		if (const IFootstepInterface* FootstepInterface = Cast<IFootstepInterface>(World->GetWorldSettings()))
 		{
-			if (UFoostepPoolingManagerComponent* PoolingManager = FootstepInterface->GetPoolingManagerComponent())
+			if (UFoostepPoolingManager* PoolingManager = FootstepInterface->GetPoolingManager())
 			{
 				PoolingManager->DestroyPooledActors();
 			}
@@ -38,25 +38,29 @@ void UFoostepPoolingManagerComponent::DestroyFootstepPool(const UObject* WorldCo
 	}
 }
 
-void UFoostepPoolingManagerComponent::SafeSpawnPooledActor()
+void UFoostepPoolingManager::SafeSpawnPooledActor()
 {
-	if (!GetWorld()) { return; }
+	if ( !(GetWorld() && GetWorld()->GetNetMode() != NM_DedicatedServer) ) { return; }
 
 	if (const USurfaceFootstepSystemSettings* FootstepSettings = USurfaceFootstepSystemSettings::Get())
 	{
 		if (PooledActors.Num() < FootstepSettings->GetPoolSize())
 		{
-			FActorSpawnParameters SpawnParams;
-			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+			const FActorSpawnParameters SpawnParams = Invoke([]()->FActorSpawnParameters const {
+				FActorSpawnParameters Params;
+				Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+				return Params;
+			});
 
 			AFootstepActor* FootstepActor = GetWorld()->SpawnActor<AFootstepActor>(AFootstepActor::StaticClass(), FTransform(), SpawnParams);
-			
+
 			PooledActors.Add(FootstepActor);
 		}
 	}
 }
 
-void UFoostepPoolingManagerComponent::DestroyPooledActors()
+void UFoostepPoolingManager::DestroyPooledActors()
 {
 	for (AFootstepActor* PooledActor : PooledActors)
 	{
@@ -69,7 +73,7 @@ void UFoostepPoolingManagerComponent::DestroyPooledActors()
 	PooledActors.Empty();
 }
 
-AFootstepActor* UFoostepPoolingManagerComponent::GetPooledActor()
+AFootstepActor* UFoostepPoolingManager::GetPooledActor()
 {
 	for (AFootstepActor* PooledActor : PooledActors)
 	{
@@ -87,7 +91,7 @@ AFootstepActor* UFoostepPoolingManagerComponent::GetPooledActor()
 
 		return PooledActor;
 	}
-	
+
 	return nullptr;
 }
 

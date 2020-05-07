@@ -1,4 +1,4 @@
-// Copyright 2019 Urszula Kustra. All Rights Reserved.
+// Copyright 2019-2020 Urszula Kustra. All Rights Reserved.
 
 #include "FootstepComponent.h"
 #include "SurfaceFootstepSystemSettings.h"
@@ -14,7 +14,6 @@ UFootstepComponent::UFootstepComponent(const FObjectInitializer& ObjectInitializ
 
 	if (FootstepSettings)
 	{
-		FootstepSettings = USurfaceFootstepSystemSettings::Get();
 		TraceLength = FootstepSettings->GetDefaultTraceLength();
 	}
 }
@@ -39,7 +38,10 @@ void UFootstepComponent::SetActorsToIgnoreForTrace(const TArray<AActor*>& NewAct
 
 	for (AActor* Actor : NewActorsToIgnore)
 	{
-		ActorsToIgnore.AddUnique(Actor);
+		if (Actor)
+		{
+			ActorsToIgnore.AddUnique(Actor);
+		}
 	}
 }
 
@@ -47,11 +49,10 @@ bool UFootstepComponent::CreateFootstepLineTrace(const FVector Start, const FVec
 {
 	if (!GetWorld() && !FootstepSettings) { return false; }
 
-	// Ensure DirVector is normalized
-	const FVector DirVector = DirectionNormalVector.Size() == 1.f ? DirectionNormalVector : DirectionNormalVector.GetSafeNormal();
+	const FVector DirVector = DirectionNormalVector.GetSafeNormal();
 	const FVector End = Start + (DirVector * TraceLength);
 
-	const FCollisionQueryParams QueryParams = Invoke([this]()->FCollisionQueryParams {
+	const FCollisionQueryParams QueryParams = Invoke([this]()->FCollisionQueryParams const {
 		FCollisionQueryParams Params;
 		Params.bReturnPhysicalMaterial = true;
 		Params.bTraceComplex = FootstepSettings->GetTraceComplex();
@@ -71,7 +72,7 @@ bool UFootstepComponent::CreateFootstepLineTrace(const FVector Start, const FVec
 		return Params;
 	});
 
-	const FCollisionObjectQueryParams ObjectParams = Invoke([this]()->FCollisionObjectQueryParams {
+	const FCollisionObjectQueryParams ObjectParams = Invoke([this]()->FCollisionObjectQueryParams const {
 		FCollisionObjectQueryParams Params;
 		for (ECollisionChannel ObjectType : FootstepSettings->GetFootstepObjectTypes())
 		{

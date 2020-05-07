@@ -1,4 +1,4 @@
-// Copyright 2019 Urszula Kustra. All Rights Reserved.
+// Copyright 2019-2020 Urszula Kustra. All Rights Reserved.
 
 #pragma once
 
@@ -17,7 +17,7 @@ class UNiagaraSystem;
  * An actor from the Surface Footstep System plugin which visualizes footstep impact.
  */
 UCLASS(NotBlueprintable, NotBlueprintType)
-class SURFACEFOOTSTEPSYSTEM_API AFootstepActor : public AActor
+class SURFACEFOOTSTEPSYSTEM_API AFootstepActor final : public AActor
 {
 	GENERATED_UCLASS_BODY()
 	

@@ -1,14 +1,17 @@
-// Copyright 2019 Urszula Kustra. All Rights Reserved.
+// Copyright 2019-2020 Urszula Kustra. All Rights Reserved.
 
 #include "FootstepWorldSettings.h"
 
 AFootstepWorldSettings::AFootstepWorldSettings(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	PoolingManagerComponent = ObjectInitializer.CreateDefaultSubobject<UFoostepPoolingManagerComponent>(this, TEXT("PoolingManagerComponent"));
+	if (GetNetMode() != NM_DedicatedServer)
+	{
+		PoolingManager = ObjectInitializer.CreateDefaultSubobject<UFoostepPoolingManager>(this, TEXT("PoolingManager"));
+	}
 }
 
-UFoostepPoolingManagerComponent* AFootstepWorldSettings::GetPoolingManagerComponent() const
+UFoostepPoolingManager* AFootstepWorldSettings::GetPoolingManager() const
 {
-	return PoolingManagerComponent;
+	return PoolingManager;
 }

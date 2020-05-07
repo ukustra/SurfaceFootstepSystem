@@ -1,4 +1,4 @@
-// Copyright 2019 Urszula Kustra. All Rights Reserved.
+// Copyright 2019-2020 Urszula Kustra. All Rights Reserved.
 
 #include "FootstepDataAsset.h"
 #include "SurfaceFootstepSystemSettings.h"

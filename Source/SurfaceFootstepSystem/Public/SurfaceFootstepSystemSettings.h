@@ -1,4 +1,4 @@
-// Copyright 2019 Urszula Kustra. All Rights Reserved.
+// Copyright 2019-2020 Urszula Kustra. All Rights Reserved.
 
 #pragma once
 
@@ -26,7 +26,7 @@ protected:
 	float DefaultTraceLength;
 
 	/** Whether complex or simple collision should be used in trace. */
-	UPROPERTY(config, EditDefaultsOnly, Category = "Trace")
+	UPROPERTY(config, EditDefaultsOnly, AdvancedDisplay, Category = "Trace")
 	bool bTraceComplex;
 
 	/** Maximum amount of spawned Footstep Actors. */
