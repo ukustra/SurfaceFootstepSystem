@@ -31,8 +31,6 @@ private:
 	UPROPERTY()
 	UNiagaraComponent* NiagaraComponent;
 
-	void DeactivatePooling();
-
 public:
 	//~ Begin AActor interface
 	virtual void SetLifeSpan(float InLifespan) override;

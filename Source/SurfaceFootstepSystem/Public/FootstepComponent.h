@@ -4,10 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Chaos/ChaosEngineInterface.h"
 #include "FootstepComponent.generated.h"
 
 class UFootstepDataAsset;
 class USurfaceFootstepSystemSettings;
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_SixParams(FFootstepDelegate, TEnumAsByte<EPhysicalSurface>, SurfaceType, const FGameplayTag&, Category, const FTransform&, ActorTransform, float, GeneratedVolume, float, GeneratedPitch, const FVector&, GeneratedParticleRelativeScale);
 
 /**
  * A component from the Surface Footstep System plugin which specifies which footstep should be spawn, depending on the Surface Type.
@@ -31,11 +34,15 @@ protected:
 	bool bShowDebug;
 
 public:
+	/** Called when a new Footstep Actor is generated. */
+	UPROPERTY(BlueprintAssignable, Category = "Surface Footstep System")
+	FFootstepDelegate OnFootstepGenerated;
+
 	/** What type of a footstep SFX should be spawned. */
 	UFUNCTION(BlueprintPure, Category = "Surface Footstep System", meta = (Keywords = "is locally controlled"))
 	bool GetPlaySound2D() const;
 
-	/** Sets the new array of Actors ignored during tracing and cleares the previous array. */
+	/** Sets the new array of Actors ignored during tracing and clears the previous array. */
 	UFUNCTION(BlueprintCallable, Category = "Surface Footstep System")
 	void SetActorsToIgnoreForTrace(const TArray<AActor*>& NewActorsToIgnore);
 

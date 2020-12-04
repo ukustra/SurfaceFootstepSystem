@@ -6,8 +6,3 @@ UFootstepInterface::UFootstepInterface(const FObjectInitializer& ObjectInitializ
 	: Super(ObjectInitializer)
 {
 }
-
-UFoostepPoolingManager* IFootstepInterface::GetPoolingManager() const
-{
-	return nullptr;
-}

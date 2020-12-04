@@ -35,7 +35,7 @@ void UAnimNotify_SurfaceFootstep::Notify(USkeletalMeshComponent* MeshComp, UAnim
 	Super::Notify(MeshComp, Animation);
 
 	// Check the most important conditions
-	if ( !(FootstepSettings && MeshComp && MeshComp->GetWorld() && MeshComp->GetNetMode() != NM_DedicatedServer && MeshComp->GetOwner() && MeshComp->GetOwner()->GetClass()->ImplementsInterface(UFootstepInterface::StaticClass())) ) { return; }
+	if ( !(FootstepSettings && MeshComp && MeshComp->GetWorld() && MeshComp->GetNetMode() != NM_DedicatedServer && MeshComp->GetOwner()) ) { return; }
 
 	if (FootstepSettings->GetCategoriesNum() == 0)
 	{
@@ -48,22 +48,25 @@ void UAnimNotify_SurfaceFootstep::Notify(USkeletalMeshComponent* MeshComp, UAnim
 		return;
 	}
 
-	// Ensure the World Settings class implements Footstep Interface
-	UFoostepPoolingManager* PoolingManager = nullptr;
-	if (const IFootstepInterface* FootstepInterface = Cast<IFootstepInterface>(MeshComp->GetWorld()->GetWorldSettings()))
-	{
-		PoolingManager = FootstepInterface->GetPoolingManager();
-	}
+	UFoostepPoolingManager* PoolingManager = MeshComp->GetWorld()->GetSubsystem<UFoostepPoolingManager>();
 
 	if (!PoolingManager)
 	{
-		FMessageLog("PIE").Error(LOCTEXT("InvalidWorldSettings", "Your Worlds Settings class doesn't implement a Footstep Interface. Change the World Settings class to the FootstepWorldSettings in the Project Settings or implement a Footstep Interface and override the \"GetPoolingManagerComponent\" function in your World Settings C++ class."));
 		return;
 	}
 
-	UFootstepComponent* FootstepComponent = IFootstepInterface::Execute_GetFootstepComponent(MeshComp->GetOwner());
+	AActor* MeshOwner = MeshComp->GetOwner();
 
-	if (!FootstepComponent) { return; }
+	UFootstepComponent* FootstepComponent = nullptr;
+	if (Cast<IFootstepInterface>(MeshOwner) || MeshOwner->GetClass()->ImplementsInterface(UFootstepInterface::StaticClass()))
+	{
+		FootstepComponent = IFootstepInterface::Execute_GetFootstepComponent(MeshOwner);
+	}
+
+	if (!(FootstepComponent && FootstepComponent->IsActive()))
+	{
+		return;
+	}
 
 	// Prepare tracing
 	const bool bUseFootSocketLocation = TraceFromFootSocket() && MeshComp->DoesSocketExist(FootSocket);
@@ -136,7 +139,7 @@ void UAnimNotify_SurfaceFootstep::Notify(USkeletalMeshComponent* MeshComp, UAnim
 			const FString AnimationName = Animation->GetName();
 			const FString CategoryName = FootstepCategory.ToString();
 			const FString SocketName = TraceFromFootSocket() ? FootSocket.ToString() : TEXT("ROOT");
-			const FString OwnerName = GetActorName(MeshComp->GetOwner());
+			const FString OwnerName = GetActorName(MeshOwner);
 
 			const FString DebugMessage = TEXT("PhysMat: ") + PhysMatName + TEXT(", DataAsset: ") + DataAssetName + TEXT(", Anim: ") + AnimationName + TEXT(", Category: ") + CategoryName + TEXT(", Socket: ") + SocketName + TEXT(", Owner: ") + OwnerName + TEXT(", HitActor: ") + GetActorName(TraceHitResult.GetActor()) + TEXT(", HitComp: ") + TraceHitResult.GetComponent()->GetName();
 
@@ -158,15 +161,20 @@ void UAnimNotify_SurfaceFootstep::Notify(USkeletalMeshComponent* MeshComp, UAnim
 
 				const FQuat ActorQuat = FootstepParticle ? FRotationMatrix::MakeFromZ(TraceHitResult.ImpactNormal).ToQuat() : FQuat(EForceInit::ForceInitToZero);
 				const FTransform WorldTransform = FTransform(ActorQuat, TraceHitResult.ImpactPoint, FVector(1.f));
-				const FVector RelScaleVFX = FootstepData->GetRelScaleParticle();
+				const FVector RelScaleVFX = FootstepParticle ? FootstepData->GetRelScaleParticle() : FVector(0.f);
 
 				FootstepActor->SetActorTransform(WorldTransform);
 
-				FootstepActor->InitSound(FootstepSound, FootstepData->GetVolume(), FootstepData->GetPitch(), FootstepComponent->GetPlaySound2D(), FootstepData->GetAttenuationOverride(), FootstepData->GetConcurrencyOverride());
+				const float Volume = FootstepSound ? FootstepData->GetVolume() : 0.f;
+				const float Pitch = FootstepSound ? FootstepData->GetPitch() : 0.f;
+
+				FootstepActor->InitSound(FootstepSound, Volume, Pitch, FootstepComponent->GetPlaySound2D(), FootstepData->GetAttenuationOverride(), FootstepData->GetConcurrencyOverride());
 				FootstepActor->InitParticle(FootstepParticle, RelScaleVFX);
 
 				FootstepActor->SetLifeSpan(FootstepData->GetFootstepLifeSpan());
 				FootstepActor->SetPoolingActive(true);
+
+				FootstepComponent->OnFootstepGenerated.Broadcast(PhysMat->SurfaceType, FootstepCategory, WorldTransform, Volume, Pitch, RelScaleVFX);
 			}
 		}
 	}
@@ -188,7 +196,7 @@ UPhysicalMaterial* UAnimNotify_SurfaceFootstep::GetPhysicalMaterial(const FHitRe
 	{
 		return HitResult.PhysMaterial.Get();
 	}
-	else if (HitResult.GetComponent())
+	else if (HitResult.Component.IsValid())
 	{
 		if (const FBodyInstance* BodyInstance = HitResult.GetComponent()->GetBodyInstance())
 		{

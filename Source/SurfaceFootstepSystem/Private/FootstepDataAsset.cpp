@@ -53,7 +53,7 @@ USoundBase* UFootstepDataAsset::GetSound(const FGameplayTag& CategoryTag) const
 	}
 	else if (FootstepData.Contains(CategoryTag))
 	{
-		const TArray<USoundBase*> Sounds = FootstepData[CategoryTag].Sounds;
+		const TArray<USoundBase*>& Sounds = FootstepData[CategoryTag].Sounds;
 		return Sounds.Num() > 0 ? Sounds[FMath::RandHelper(Sounds.Num())] : nullptr;
 	}
 	else

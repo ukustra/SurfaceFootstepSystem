@@ -8,6 +8,8 @@ public class SurfaceFootstepSystem : ModuleRules
 	{
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 
+        bLegacyPublicIncludePaths = false;
+
         PublicIncludePaths.AddRange(
 			new string[] {
 			}
@@ -36,7 +38,8 @@ public class SurfaceFootstepSystem : ModuleRules
 				"Slate",
 				"SlateCore",
                 "Niagara",
-                "GameplayTags"
+                "GameplayTags",
+                "PhysicsCore"
             }
 			);
 		

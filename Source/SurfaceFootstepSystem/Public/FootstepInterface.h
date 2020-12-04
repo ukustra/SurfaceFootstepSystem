@@ -25,6 +25,4 @@ class SURFACEFOOTSTEPSYSTEM_API IFootstepInterface
 public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "SurfaceFootstepSystem")
 	UFootstepComponent* GetFootstepComponent() const;
-
-	virtual UFoostepPoolingManager* GetPoolingManager() const;
 };

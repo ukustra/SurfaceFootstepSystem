@@ -56,7 +56,7 @@ public:
 	bool ContainsCategory(const FGameplayTag& CategoryTag) const;
 	FGameplayTag GetCategoryName(int32 Index) const;
 
-	TArray<TEnumAsByte<ECollisionChannel>> GetFootstepObjectTypes() const;
+	const TArray<TEnumAsByte<ECollisionChannel>>& GetFootstepObjectTypes() const;
 	float GetDefaultTraceLength() const;
 	bool GetTraceComplex() const;
 

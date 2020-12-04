@@ -39,7 +39,7 @@ FGameplayTag USurfaceFootstepSystemSettings::GetCategoryName(int32 Index) const
 	return FootstepCategories.IsValidIndex(Index) ? FootstepCategories[Index] : FGameplayTag::EmptyTag;
 }
 
-TArray<TEnumAsByte<ECollisionChannel>> USurfaceFootstepSystemSettings::GetFootstepObjectTypes() const
+const TArray<TEnumAsByte<ECollisionChannel>>& USurfaceFootstepSystemSettings::GetFootstepObjectTypes() const
 {
 	return FootstepObjectTypes;
 }

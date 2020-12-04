@@ -10,6 +10,8 @@ UFootstepComponent::UFootstepComponent(const FObjectInitializer& ObjectInitializ
 	PrimaryComponentTick.bCanEverTick = false;
 	PrimaryComponentTick.bStartWithTickEnabled = false;
 
+	SetAutoActivate(true);
+
 	FootstepSettings = USurfaceFootstepSystemSettings::Get();
 
 	if (FootstepSettings)
@@ -22,13 +24,17 @@ bool UFootstepComponent::GetPlaySound2D() const
 {
 	if (!FootstepSettings) { return false; }
 
-	if ( const APawn* PawnOwner = Cast<APawn>(GetOwner()) )
+	if (FootstepSettings->GetPlaySound2D())
 	{
-		if (const AController* Controller = PawnOwner->GetController())
+		if (const APawn* PawnOwner = Cast<APawn>(GetOwner()))
 		{
-			return FootstepSettings->GetPlaySound2D() && Controller->IsLocalPlayerController();
+			if (const AController* Controller = PawnOwner->GetController())
+			{
+				return Controller->IsLocalPlayerController();
+			}
 		}
 	}
+
 	return false;
 }
 

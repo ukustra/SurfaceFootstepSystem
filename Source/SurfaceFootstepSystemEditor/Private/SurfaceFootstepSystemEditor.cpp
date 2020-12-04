@@ -31,7 +31,7 @@ void FSurfaceFootstepSystemEditorModule::UnregisterAssetTools()
 	if (FModuleManager::Get().IsModuleLoaded("AssetTools"))
 	{
 		IAssetTools& AssetTools = FModuleManager::GetModuleChecked<FAssetToolsModule>("AssetTools").Get();
-		for (auto& Action : RegisteredAssetTypeActions)
+		for (const auto& Action : RegisteredAssetTypeActions)
 		{
 			AssetTools.UnregisterAssetTypeActions(Action.ToSharedRef());
 		}

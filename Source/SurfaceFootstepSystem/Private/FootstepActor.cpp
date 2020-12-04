@@ -26,16 +26,20 @@ AFootstepActor::AFootstepActor(const FObjectInitializer& ObjectInitializer)
 	NiagaraComponent->SetupAttachment(RootComponent);
 }
 
-void AFootstepActor::DeactivatePooling()
-{
-	SetPoolingActive(false);
-}
-
 void AFootstepActor::SetLifeSpan(float InLifespan)
 {
 	PoolingLifeSpan = InLifespan;
 
-	GetWorldTimerManager().SetTimer(PoolingTimer, this, &AFootstepActor::DeactivatePooling, PoolingLifeSpan, false);
+	if (PoolingLifeSpan > 0.f)
+	{
+		GetWorldTimerManager().SetTimer(PoolingTimer, FTimerDelegate::CreateWeakLambda(this, [this]() {
+			SetPoolingActive(false);
+		}), PoolingLifeSpan, false);
+	}
+	else
+	{
+		SetPoolingActive(false);
+	}
 }
 
 void AFootstepActor::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -62,9 +66,10 @@ void AFootstepActor::SetPoolingActive(bool bInActive)
 		ParticleComponent->Deactivate();
 		NiagaraComponent->Deactivate();
 
-		AudioComponent->SetSound(nullptr);
+		// Removed setting null assets in order to fix Niagara crash
+		/*AudioComponent->SetSound(nullptr);
 		ParticleComponent->SetTemplate(nullptr);
-		NiagaraComponent->SetAsset(nullptr);
+		NiagaraComponent->SetAsset(nullptr);*/
 	}
 }
 

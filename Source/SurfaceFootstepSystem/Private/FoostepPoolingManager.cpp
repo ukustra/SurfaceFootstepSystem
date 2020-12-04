@@ -7,8 +7,8 @@
 
 #define LOCTEXT_NAMESPACE "FFootstepPoolingManager"
 
-UFoostepPoolingManager::UFoostepPoolingManager(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
+UFoostepPoolingManager::UFoostepPoolingManager()
+	: Super()
 {
 }
 
@@ -18,30 +18,28 @@ void UFoostepPoolingManager::DestroyFootstepPool(const UObject* WorldContextObje
 
 	if (const UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull))
 	{
-		if (World->GetNetMode() == NM_DedicatedServer) { return; }
-
-		if (const IFootstepInterface* FootstepInterface = Cast<IFootstepInterface>(World->GetWorldSettings()))
+		if (UFoostepPoolingManager* PoolingManager = World->GetSubsystem<UFoostepPoolingManager>())
 		{
-			if (UFoostepPoolingManager* PoolingManager = FootstepInterface->GetPoolingManager())
-			{
-				PoolingManager->DestroyPooledActors();
-			}
-			else
-			{
-				FMessageLog("PIE").Error(LOCTEXT("InvalidPoolingManager", "Cannot delete Footstep Actors, because your World Settings class doesn't override the \"GetPoolingManagerComponent\" function."));
-			}
-		}
-		else
-		{
-			FMessageLog("PIE").Error(LOCTEXT("InvalidWorldSettings", "Cannot delete Footstep Actors, because your Worlds Settings class doesn't implement a Footstep Interface. Change the World Settings class to the FootstepWorldSettings in the Project Settings or implement a Footstep Interface and override the \"GetPoolingManagerComponent\" function in your World Settings C++ class."));
+			PoolingManager->DestroyPooledActors();
 		}
 	}
 }
 
+bool UFoostepPoolingManager::ShouldCreateSubsystem(UObject* Outer) const
+{
+	if (GEngine)
+	{
+		if (const UWorld* World = GEngine->GetWorldFromContextObject(Outer, EGetWorldErrorMode::LogAndReturnNull))
+		{
+			return World->GetNetMode() != NM_DedicatedServer;
+		}
+	}
+
+	return false;
+}
+
 void UFoostepPoolingManager::SafeSpawnPooledActor()
 {
-	if ( !(GetWorld() && GetWorld()->GetNetMode() != NM_DedicatedServer) ) { return; }
-
 	if (const USurfaceFootstepSystemSettings* FootstepSettings = USurfaceFootstepSystemSettings::Get())
 	{
 		if (PooledActors.Num() < FootstepSettings->GetPoolSize())
