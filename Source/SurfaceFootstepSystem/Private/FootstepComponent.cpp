@@ -51,6 +51,32 @@ void UFootstepComponent::SetActorsToIgnoreForTrace(const TArray<AActor*>& NewAct
 	}
 }
 
+void UFootstepComponent::AddActorToIgnoreForTrace(AActor* NewActor)
+{
+	if (NewActor)
+	{
+		ActorsToIgnore.AddUnique(NewActor);
+	}
+}
+
+bool UFootstepComponent::RemoveActorToIgnoreForTrace(AActor* ActorToRemove)
+{
+	if (ActorToRemove)
+	{
+		for (int32 i = 0; i < ActorsToIgnore.Num(); ++i)
+		{
+			if (ActorsToIgnore[i] == ActorToRemove)
+			{
+				ActorsToIgnore.RemoveAt(i);
+
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
 bool UFootstepComponent::CreateFootstepLineTrace(const FVector Start, const FVector DirectionNormalVector, FHitResult& OutHit)
 {
 	if (!GetWorld() && !FootstepSettings) { return false; }

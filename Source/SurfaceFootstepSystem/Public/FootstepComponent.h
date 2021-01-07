@@ -45,6 +45,14 @@ public:
 	/** Sets the new array of Actors ignored during tracing and clears the previous array. */
 	UFUNCTION(BlueprintCallable, Category = "Surface Footstep System")
 	void SetActorsToIgnoreForTrace(const TArray<AActor*>& NewActorsToIgnore);
+	
+	/** Adds an Actor to the array of Actors ignored during tracing. */
+	UFUNCTION(BlueprintCallable, Category = "Surface Footstep System")
+	void AddActorToIgnoreForTrace(AActor* NewActor);
+
+	/** Removes an Actor from the array of Actors ignored during tracing. */
+	UFUNCTION(BlueprintCallable, Category = "Surface Footstep System")
+	bool RemoveActorToIgnoreForTrace(AActor* ActorToRemove);
 
 	bool CreateFootstepLineTrace(const FVector Start, const FVector DirectionNormalVector, FHitResult& OutHit);
 	UFootstepDataAsset* GetFootstepData(EPhysicalSurface SurfaceType) const;
