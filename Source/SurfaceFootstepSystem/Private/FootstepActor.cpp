@@ -7,6 +7,7 @@
 
 AFootstepActor::AFootstepActor(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
+	, UseComponentTag(TEXT("UseComponent"))
 {
 	PrimaryActorTick.bCanEverTick = false;
 	PrimaryActorTick.bStartWithTickEnabled = false;
@@ -53,11 +54,27 @@ void AFootstepActor::SetPoolingActive(bool bInActive)
 {
 	check(AudioComponent && ParticleComponent && NiagaraComponent);
 
-	if (bInActive)
+	const bool bUseAudio = AudioComponent->ComponentHasTag(UseComponentTag);
+	const bool bUseCascade = ParticleComponent->ComponentHasTag(UseComponentTag);
+	const bool bUseNiagara = NiagaraComponent->ComponentHasTag(UseComponentTag);
+
+	if (bInActive && (bUseAudio || bUseCascade || bUseNiagara))
 	{
 		bPoolingActive = true;
-		AudioComponent->Play();
-		bUseNiagara ? NiagaraComponent->Activate(true) : ParticleComponent->Activate(true);
+
+		if (bUseAudio)
+		{
+			AudioComponent->Play();
+		}
+
+		if (bUseCascade)
+		{
+			ParticleComponent->Activate(true);
+		}
+		else if (bUseNiagara)
+		{
+			NiagaraComponent->Activate(true);
+		}
 	}
 	else if (bPoolingActive)
 	{
@@ -66,10 +83,9 @@ void AFootstepActor::SetPoolingActive(bool bInActive)
 		ParticleComponent->Deactivate();
 		NiagaraComponent->Deactivate();
 
-		// Removed setting null assets in order to fix Niagara crash
-		/*AudioComponent->SetSound(nullptr);
-		ParticleComponent->SetTemplate(nullptr);
-		NiagaraComponent->SetAsset(nullptr);*/
+		AudioComponent->ComponentTags.Empty();
+		ParticleComponent->ComponentTags.Empty();
+		NiagaraComponent->ComponentTags.Empty();
 	}
 }
 
@@ -111,6 +127,8 @@ void AFootstepActor::InitSound(USoundBase* Sound, float Volume, float Pitch, boo
 	{
 		AudioComponent->ConcurrencySet.Add(ConcurrencyOverride);
 	}
+
+	AudioComponent->ComponentTags.AddUnique(UseComponentTag);
 }
 
 void AFootstepActor::InitParticle(UObject* Particle, const FVector RelativeScale)
@@ -121,14 +139,14 @@ void AFootstepActor::InitParticle(UObject* Particle, const FVector RelativeScale
 
 	if (UParticleSystem* ParticleSystem = Cast<UParticleSystem>(Particle))
 	{
-		bUseNiagara = false;
 		ParticleComponent->SetTemplate(ParticleSystem);
 		ParticleComponent->SetRelativeScale3D(RelativeScale);
+		ParticleComponent->ComponentTags.AddUnique(UseComponentTag);
 	}
 	else if (UNiagaraSystem* NiagaraSystem = Cast<UNiagaraSystem>(Particle))
 	{
-		bUseNiagara = true;
 		NiagaraComponent->SetAsset(NiagaraSystem);
 		NiagaraComponent->SetRelativeScale3D(RelativeScale);
+		NiagaraComponent->ComponentTags.AddUnique(UseComponentTag);
 	}
 }

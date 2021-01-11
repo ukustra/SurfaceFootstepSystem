@@ -44,8 +44,8 @@ public:
 	void InitParticle(UObject* Particle, const FVector RelativeScale);
 
 private:
+	FName UseComponentTag;
 	float PoolingLifeSpan;
 	FTimerHandle PoolingTimer;
 	bool bPoolingActive;
-	bool bUseNiagara;
 };
