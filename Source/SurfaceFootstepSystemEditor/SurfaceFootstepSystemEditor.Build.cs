@@ -7,14 +7,7 @@ public class SurfaceFootstepSystemEditor : ModuleRules
 	public SurfaceFootstepSystemEditor(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
-		
-		PublicIncludePaths.AddRange(
-			new string[] {
-                "SurfaceFootstepSystemEditor/Public"
-            }
-			);
-				
-		
+
 		PrivateIncludePaths.AddRange(
 			new string[] {
                 "SurfaceFootstepSystemEditor/Private"

@@ -10,7 +10,7 @@
 class UFootstepDataAsset;
 class USurfaceFootstepSystemSettings;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_SixParams(FFootstepDelegate, TEnumAsByte<EPhysicalSurface>, SurfaceType, const FGameplayTag&, Category, const FTransform&, ActorTransform, float, GeneratedVolume, float, GeneratedPitch, const FVector&, GeneratedParticleRelativeScale);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_EightParams(FFootstepDelegate, TEnumAsByte<EPhysicalSurface>, SurfaceType, const FGameplayTag&, Category, const FTransform&, ActorTransform, float, GeneratedVolume, float, GeneratedPitch, float, GeneratedSoundAssetVolume, float, GeneratedSoundAssetPitch, const FVector&, GeneratedParticleRelativeScale);
 
 /**
  * A component from the Surface Footstep System plugin which specifies which footstep should be spawn, depending on the Surface Type.

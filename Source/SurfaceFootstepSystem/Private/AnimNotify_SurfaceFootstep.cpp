@@ -167,6 +167,8 @@ void UAnimNotify_SurfaceFootstep::Notify(USkeletalMeshComponent* MeshComp, UAnim
 
 				const float Volume = FootstepSound ? FootstepData->GetVolume() : 0.f;
 				const float Pitch = FootstepSound ? FootstepData->GetPitch() : 0.f;
+				const float SoundAssetVolume = FootstepSound ? FootstepSound->GetVolumeMultiplier() : 0.f;
+				const float SoundAssetPitch = FootstepSound ? FootstepSound->GetPitchMultiplier() : 0.f;
 
 				FootstepActor->InitSound(FootstepSound, Volume, Pitch, FootstepComponent->GetPlaySound2D(), FootstepData->GetAttenuationOverride(), FootstepData->GetConcurrencyOverride());
 				FootstepActor->InitParticle(FootstepParticle, RelScaleVFX);
@@ -174,7 +176,7 @@ void UAnimNotify_SurfaceFootstep::Notify(USkeletalMeshComponent* MeshComp, UAnim
 				FootstepActor->SetLifeSpan(FootstepData->GetFootstepLifeSpan());
 				FootstepActor->SetPoolingActive(true);
 
-				FootstepComponent->OnFootstepGenerated.Broadcast(PhysMat->SurfaceType, FootstepCategory, WorldTransform, Volume, Pitch, RelScaleVFX);
+				FootstepComponent->OnFootstepGenerated.Broadcast(PhysMat->SurfaceType, FootstepCategory, WorldTransform, Volume, Pitch, SoundAssetVolume, SoundAssetPitch, RelScaleVFX);
 			}
 		}
 	}
