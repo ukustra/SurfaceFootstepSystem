@@ -43,11 +43,11 @@ protected:
 
 	/** Used as a default asset in Footstep Data Assets. */
 	UPROPERTY(config, EditDefaultsOnly, Category = "Sound", meta = (AllowedClasses = "SoundAttenuation"))
-	FStringAssetReference DefaultAttenuationOverride;
+	FSoftObjectPath DefaultAttenuationOverride;
 
 	/** Used as a default asset in Footstep Data Assets. */
 	UPROPERTY(config, EditDefaultsOnly, Category = "Sound", meta = (AllowedClasses = "SoundConcurrency"))
-	FStringAssetReference DefaultConcurrencyOverride;
+	FSoftObjectPath DefaultConcurrencyOverride;
 
 public:
 	static USurfaceFootstepSystemSettings* Get();

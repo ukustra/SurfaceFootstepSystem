@@ -30,9 +30,10 @@ UAnimNotify_SurfaceFootstep::UAnimNotify_SurfaceFootstep(const FObjectInitialize
 	}
 }
 
-void UAnimNotify_SurfaceFootstep::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
+void UAnimNotify_SurfaceFootstep::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
+	const FAnimNotifyEventReference& EventReference)
 {
-	Super::Notify(MeshComp, Animation);
+	Super::Notify(MeshComp, Animation, EventReference);
 
 	// Check the most important conditions
 	if ( !(FootstepSettings && MeshComp && MeshComp->GetWorld() && MeshComp->GetNetMode() != NM_DedicatedServer && MeshComp->GetOwner()) ) { return; }
@@ -42,7 +43,8 @@ void UAnimNotify_SurfaceFootstep::Notify(USkeletalMeshComponent* MeshComp, UAnim
 		FMessageLog("PIE").Error(LOCTEXT("InvalidCategory", "There is no Footstep Category. Add any Footstep Category in the Surface Footstep System Settings in the Project Settings."));
 		return;
 	}
-	else if (!FootstepSettings->ContainsCategory(FootstepCategory))
+
+	if (!FootstepSettings->ContainsCategory(FootstepCategory))
 	{
 		FMessageLog("PIE").Error( FText::Format(LOCTEXT("InvalidCategory", "\"{0}\" category is invalid. Add this Footstep Category in the Surface Footstep System Settings in the Project Settings or use a proper Footstep Category in the Surface Footstep Anim Notify."), FText::FromName(FootstepCategory.GetTagName())) );
 		return;
@@ -97,10 +99,9 @@ void UAnimNotify_SurfaceFootstep::Notify(USkeletalMeshComponent* MeshComp, UAnim
 				return DefaultDirVector;
 			}
 		}
-		else
+		
+		switch (FootstepTraceDirection)
 		{
-			switch (FootstepTraceDirection)
-			{
 			case EFootstepTraceDirection::Down:
 				return MeshComp->GetUpVector() * -1.f;
 			case EFootstepTraceDirection::Up:
@@ -115,7 +116,6 @@ void UAnimNotify_SurfaceFootstep::Notify(USkeletalMeshComponent* MeshComp, UAnim
 				return MeshComp->GetRightVector() * -1.f;
 			default:
 				return DefaultDirVector;
-			}
 		}
 	});
 

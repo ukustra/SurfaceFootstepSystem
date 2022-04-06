@@ -40,8 +40,8 @@ public:
 	void SetPoolingActive(bool bInActive);
 	bool IsPoolingActive() const;
 
-	void InitSound(USoundBase* Sound, float Volume, float Pitch, bool bIs2D, USoundAttenuation* AttenuationOverride = nullptr, USoundConcurrency* ConcurrencyOverride = nullptr);
-	void InitParticle(UObject* Particle, const FVector RelativeScale);
+	void InitSound(USoundBase* Sound, float Volume, float Pitch, bool bIs2D, USoundAttenuation* AttenuationOverride = nullptr, USoundConcurrency* ConcurrencyOverride = nullptr) const;
+	void InitParticle(UObject* Particle, const FVector RelativeScale) const;
 
 private:
 	FName UseComponentTag;

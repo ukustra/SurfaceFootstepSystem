@@ -94,7 +94,7 @@ bool AFootstepActor::IsPoolingActive() const
 	return bPoolingActive;
 }
 
-void AFootstepActor::InitSound(USoundBase* Sound, float Volume, float Pitch, bool bIs2D, USoundAttenuation* AttenuationOverride, USoundConcurrency* ConcurrencyOverride)
+void AFootstepActor::InitSound(USoundBase* Sound, float Volume, float Pitch, bool bIs2D, USoundAttenuation* AttenuationOverride, USoundConcurrency* ConcurrencyOverride) const
 {
 	if (!Sound) { return; }
 
@@ -131,7 +131,7 @@ void AFootstepActor::InitSound(USoundBase* Sound, float Volume, float Pitch, boo
 	AudioComponent->ComponentTags.AddUnique(UseComponentTag);
 }
 
-void AFootstepActor::InitParticle(UObject* Particle, const FVector RelativeScale)
+void AFootstepActor::InitParticle(UObject* Particle, const FVector RelativeScale) const
 {
 	if (!Particle) { return; }
 

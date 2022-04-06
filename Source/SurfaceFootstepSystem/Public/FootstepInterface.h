@@ -21,8 +21,7 @@ class UFootstepInterface : public UInterface
 class SURFACEFOOTSTEPSYSTEM_API IFootstepInterface
 {
 	GENERATED_IINTERFACE_BODY()
-
-public:
+	
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "SurfaceFootstepSystem")
 	UFootstepComponent* GetFootstepComponent() const;
 };

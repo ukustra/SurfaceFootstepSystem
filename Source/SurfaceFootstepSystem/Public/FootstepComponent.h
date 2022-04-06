@@ -54,7 +54,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Surface Footstep System")
 	bool RemoveActorToIgnoreForTrace(AActor* ActorToRemove);
 
-	bool CreateFootstepLineTrace(const FVector Start, const FVector DirectionNormalVector, FHitResult& OutHit);
+	bool CreateFootstepLineTrace(const FVector& Start, const FVector& DirectionNormalVector, FHitResult& OutHit) const;
 	UFootstepDataAsset* GetFootstepData(EPhysicalSurface SurfaceType) const;
 
 	float GetTraceLength() const;

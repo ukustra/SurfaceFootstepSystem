@@ -48,7 +48,7 @@ public:
 	FName FootSocket;
 
 	//~ Begin UAnimNotify Interface
-	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation) override;
+	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) override;
 	virtual FString GetNotifyName_Implementation() const override;
 	//~ End UAnimNotify Interface
 
