@@ -30,8 +30,7 @@ UAnimNotify_SurfaceFootstep::UAnimNotify_SurfaceFootstep(const FObjectInitialize
 	}
 }
 
-void UAnimNotify_SurfaceFootstep::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
-	const FAnimNotifyEventReference& EventReference)
+void UAnimNotify_SurfaceFootstep::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
 	Super::Notify(MeshComp, Animation, EventReference);
 
@@ -84,17 +83,17 @@ void UAnimNotify_SurfaceFootstep::Notify(USkeletalMeshComponent* MeshComp, UAnim
 			switch (FootstepTraceDirection)
 			{
 			case EFootstepTraceDirection::Down:
-				return FRotationMatrix(SocketRotation).GetScaledAxis(EAxis::Z) * -1.f;
+				return FRotationMatrix(SocketRotation).GetScaledAxis(EAxis::Z) * -1.0;
 			case EFootstepTraceDirection::Up:
 				return FRotationMatrix(SocketRotation).GetScaledAxis(EAxis::Z);
 			case EFootstepTraceDirection::Forward:
 				return SocketRotation.Vector();
 			case EFootstepTraceDirection::Backward:
-				return SocketRotation.Vector() * -1.f;
+				return SocketRotation.Vector() * -1.0;
 			case EFootstepTraceDirection::Right:
 				return FRotationMatrix(SocketRotation).GetScaledAxis(EAxis::Y);
 			case EFootstepTraceDirection::Left:
-				return FRotationMatrix(SocketRotation).GetScaledAxis(EAxis::Y) * -1.f;
+				return FRotationMatrix(SocketRotation).GetScaledAxis(EAxis::Y) * -1.0;
 			default:
 				return DefaultDirVector;
 			}
@@ -103,17 +102,17 @@ void UAnimNotify_SurfaceFootstep::Notify(USkeletalMeshComponent* MeshComp, UAnim
 		switch (FootstepTraceDirection)
 		{
 			case EFootstepTraceDirection::Down:
-				return MeshComp->GetUpVector() * -1.f;
+				return MeshComp->GetUpVector() * -1.0;
 			case EFootstepTraceDirection::Up:
 				return MeshComp->GetUpVector();
 			case EFootstepTraceDirection::Forward:
 				return MeshComp->GetForwardVector();
 			case EFootstepTraceDirection::Backward:
-				return MeshComp->GetForwardVector() * -1.f;
+				return MeshComp->GetForwardVector() * -1.0;
 			case EFootstepTraceDirection::Right:
 				return MeshComp->GetRightVector();
 			case EFootstepTraceDirection::Left:
-				return MeshComp->GetRightVector() * -1.f;
+				return MeshComp->GetRightVector() * -1.0;
 			default:
 				return DefaultDirVector;
 		}
@@ -160,8 +159,8 @@ void UAnimNotify_SurfaceFootstep::Notify(USkeletalMeshComponent* MeshComp, UAnim
 				FootstepActor->SetPoolingActive(false);
 
 				const FQuat ActorQuat = FootstepParticle ? FRotationMatrix::MakeFromZ(TraceHitResult.ImpactNormal).ToQuat() : FQuat(EForceInit::ForceInitToZero);
-				const FTransform WorldTransform = FTransform(ActorQuat, TraceHitResult.ImpactPoint, FVector(1.f));
-				const FVector RelScaleVFX = FootstepParticle ? FootstepData->GetRelScaleParticle() : FVector(0.f);
+				const FTransform WorldTransform = FTransform(ActorQuat, TraceHitResult.ImpactPoint, FVector::OneVector);
+				const FVector RelScaleVFX = FootstepParticle ? FootstepData->GetRelScaleParticle() : FVector::ZeroVector;
 
 				FootstepActor->SetActorTransform(WorldTransform);
 

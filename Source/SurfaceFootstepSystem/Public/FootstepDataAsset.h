@@ -68,12 +68,12 @@ protected:
 	USoundConcurrency* ConcurrencySettingsOverride;
 
 	/** Minimum scale of the Particle. */
-	UPROPERTY(EditDefaultsOnly, Category = "Footstep|Particle", meta = (ClampMin = 0.f))
-	float MinParticleScale;
+	UPROPERTY(EditDefaultsOnly, Category = "Footstep|Particle", meta = (ClampMin = 0.0))
+	double MinParticleScale;
 
 	/** Maximum scale of the Particle. */
-	UPROPERTY(EditDefaultsOnly, Category = "Footstep|Particle", meta = (ClampMin = 0.f))
-	float MaxParticleScale;
+	UPROPERTY(EditDefaultsOnly, Category = "Footstep|Particle", meta = (ClampMin = 0.0))
+	double MaxParticleScale;
 
 	/** The visibility time of a spawned Footstep Actor. */
 	UPROPERTY(EditDefaultsOnly, Category = "Footstep|Pooling", meta = (ClampMin = 0.f))

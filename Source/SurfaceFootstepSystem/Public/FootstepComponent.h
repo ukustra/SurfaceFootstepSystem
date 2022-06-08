@@ -23,7 +23,7 @@ class SURFACEFOOTSTEPSYSTEM_API UFootstepComponent : public UActorComponent
 protected:
 	/** Which footstep FXes should be spawned, depending on the Surface Type. */
 	UPROPERTY(EditDefaultsOnly, Category = "Surface Footstep System")
-	TMap<TEnumAsByte<EPhysicalSurface>, UFootstepDataAsset*> FootstepFXes;
+	TMap<TEnumAsByte<EPhysicalSurface>, TSoftObjectPtr<UFootstepDataAsset>> FootstepFXes;
 
 	/** Length of the trace which searches for the object at which footstep should be spawned. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Surface Footstep System", meta = (ClampMin = 0.f))

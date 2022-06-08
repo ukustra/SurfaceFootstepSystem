@@ -15,8 +15,8 @@ UFootstepDataAsset::UFootstepDataAsset(const FObjectInitializer& ObjectInitializ
 	, MaxVolume(1.f)
 	, MinPitch(1.f)
 	, MaxPitch(1.f)
-	, MinParticleScale(1.f)
-	, MaxParticleScale(1.f)
+	, MinParticleScale(1.0)
+	, MaxParticleScale(1.0)
 {
 	FootstepSettings = USurfaceFootstepSystemSettings::Get();
 
@@ -27,16 +27,16 @@ UFootstepDataAsset::UFootstepDataAsset(const FObjectInitializer& ObjectInitializ
 			FootstepData.Add(FootstepSettings->GetCategoryName(i), FFootstepData());
 		}
 
-		ConstructorHelpers::FObjectFinder<USoundAttenuation> DefaultAttenuation(*FootstepSettings->GetAttenuationAssetPath());
+		const ConstructorHelpers::FObjectFinder<USoundAttenuation> DefaultAttenuation(*FootstepSettings->GetAttenuationAssetPath());
 		if (DefaultAttenuation.Succeeded())
 		{
 			AttenuationSettingsOverride = DefaultAttenuation.Object;
 		}
 
-		ConstructorHelpers::FObjectFinder<USoundConcurrency> DefaultConurrency(*FootstepSettings->GetConcurrencyAssetPath());
-		if (DefaultConurrency.Succeeded())
+		const ConstructorHelpers::FObjectFinder<USoundConcurrency> DefaultConcurrency(*FootstepSettings->GetConcurrencyAssetPath());
+		if (DefaultConcurrency.Succeeded())
 		{
-			ConcurrencySettingsOverride = DefaultConurrency.Object;
+			ConcurrencySettingsOverride = DefaultConcurrency.Object;
 		}
 
 		FootstepLifeSpan = FootstepSettings->GetDefaultPoolingLifeSpan();
@@ -110,7 +110,7 @@ UObject* UFootstepDataAsset::GetParticle(const FGameplayTag& CategoryTag) const
 
 FVector UFootstepDataAsset::GetRelScaleParticle() const
 {
-	const float RandScale = FMath::RandRange(MinParticleScale, MaxParticleScale);
+	const double RandScale = FMath::RandRange(MinParticleScale, MaxParticleScale);
 
 	return FVector(RandScale);
 }

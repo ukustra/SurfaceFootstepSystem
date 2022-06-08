@@ -134,7 +134,7 @@ bool UFootstepComponent::CreateFootstepLineTrace(const FVector& Start, const FVe
 
 UFootstepDataAsset* UFootstepComponent::GetFootstepData(EPhysicalSurface SurfaceType) const
 {
-	return FootstepFXes.Contains(SurfaceType) ? FootstepFXes[SurfaceType] : nullptr;
+	return FootstepFXes.Contains(SurfaceType) ? FootstepFXes[SurfaceType].LoadSynchronous() : nullptr;
 }
 
 float UFootstepComponent::GetTraceLength() const
