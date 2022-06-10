@@ -35,7 +35,7 @@ void UAnimNotify_SurfaceFootstep::Notify(USkeletalMeshComponent* MeshComp, UAnim
 	Super::Notify(MeshComp, Animation, EventReference);
 
 	// Check the most important conditions
-	if ( !(FootstepSettings && MeshComp && MeshComp->GetWorld() && MeshComp->GetNetMode() != NM_DedicatedServer && MeshComp->GetOwner()) ) { return; }
+	if ( !(FootstepSettings && MeshComp && MeshComp->GetWorld() && !MeshComp->IsNetMode(NM_DedicatedServer) && MeshComp->GetOwner()) ) { return; }
 
 	if (FootstepSettings->GetCategoriesNum() == 0)
 	{

@@ -27,11 +27,11 @@ void UFoostepPoolingManager::DestroyFootstepPool(const UObject* WorldContextObje
 
 bool UFoostepPoolingManager::ShouldCreateSubsystem(UObject* Outer) const
 {
-	if (GEngine)
+	if (Super::ShouldCreateSubsystem(Outer))
 	{
-		if (const UWorld* World = GEngine->GetWorldFromContextObject(Outer, EGetWorldErrorMode::LogAndReturnNull))
+		if (const UWorld* World = Cast<UWorld>(Outer))
 		{
-			return World->GetNetMode() != NM_DedicatedServer;
+			return !World->IsNetMode(NM_DedicatedServer);
 		}
 	}
 
