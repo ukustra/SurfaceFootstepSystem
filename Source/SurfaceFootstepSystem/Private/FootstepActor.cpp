@@ -1,4 +1,4 @@
-// Copyright 2019-2020 Urszula Kustra. All Rights Reserved.
+// Copyright 2019-2022 Urszula Kustra. All Rights Reserved.
 
 #include "FootstepActor.h"
 #include "Components/AudioComponent.h"
@@ -13,18 +13,19 @@ AFootstepActor::AFootstepActor(const FObjectInitializer& ObjectInitializer)
 	PrimaryActorTick.bStartWithTickEnabled = false;
 
 	RootComponent = ObjectInitializer.CreateDefaultSubobject<USceneComponent>(this, TEXT("RootComponent"));
+	SetRootComponent(RootComponent.Get());
 
 	AudioComponent = ObjectInitializer.CreateDefaultSubobject<UAudioComponent>(this, TEXT("AudioComponent"));
 	AudioComponent->bAutoActivate = false;
-	AudioComponent->SetupAttachment(RootComponent);
+	AudioComponent->SetupAttachment(RootComponent.Get());
 
 	ParticleComponent = ObjectInitializer.CreateDefaultSubobject<UParticleSystemComponent>(this, TEXT("ParticleComponent"));
 	ParticleComponent->bAutoActivate = false;
-	ParticleComponent->SetupAttachment(RootComponent);
+	ParticleComponent->SetupAttachment(RootComponent.Get());
 
 	NiagaraComponent = ObjectInitializer.CreateDefaultSubobject<UNiagaraComponent>(this, TEXT("NiagaraComponent"));
 	NiagaraComponent->bAutoActivate = false;
-	NiagaraComponent->SetupAttachment(RootComponent);
+	NiagaraComponent->SetupAttachment(RootComponent.Get());
 }
 
 void AFootstepActor::SetLifeSpan(float InLifespan)
@@ -83,9 +84,9 @@ void AFootstepActor::SetPoolingActive(bool bInActive)
 		ParticleComponent->Deactivate();
 		NiagaraComponent->Deactivate();
 
-		AudioComponent->ComponentTags.Empty();
-		ParticleComponent->ComponentTags.Empty();
-		NiagaraComponent->ComponentTags.Empty();
+		AudioComponent->ComponentTags.Reset();
+		ParticleComponent->ComponentTags.Reset();
+		NiagaraComponent->ComponentTags.Reset();
 	}
 }
 

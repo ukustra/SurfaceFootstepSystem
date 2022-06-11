@@ -1,31 +1,31 @@
-// Copyright 2019-2020 Urszula Kustra. All Rights Reserved.
+// Copyright 2019-2022 Urszula Kustra. All Rights Reserved.
 
-#include "FoostepPoolingManager.h"
+#include "FootstepPoolingManager.h"
 #include "SurfaceFootstepSystemSettings.h"
 #include "FootstepActor.h"
 #include "Logging/MessageLog.h"
 
 #define LOCTEXT_NAMESPACE "FFootstepPoolingManager"
 
-UFoostepPoolingManager::UFoostepPoolingManager()
+UFootstepPoolingManager::UFootstepPoolingManager()
 	: Super()
 {
 }
 
-void UFoostepPoolingManager::DestroyFootstepPool(const UObject* WorldContextObject)
+void UFootstepPoolingManager::DestroyFootstepPool(const UObject* WorldContextObject)
 {
 	if (!GEngine) { return; }
 
 	if (const UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull))
 	{
-		if (UFoostepPoolingManager* PoolingManager = World->GetSubsystem<UFoostepPoolingManager>())
+		if (UFootstepPoolingManager* PoolingManager = World->GetSubsystem<UFootstepPoolingManager>())
 		{
 			PoolingManager->DestroyPooledActors();
 		}
 	}
 }
 
-bool UFoostepPoolingManager::ShouldCreateSubsystem(UObject* Outer) const
+bool UFootstepPoolingManager::ShouldCreateSubsystem(UObject* Outer) const
 {
 	if (Super::ShouldCreateSubsystem(Outer))
 	{
@@ -38,7 +38,14 @@ bool UFoostepPoolingManager::ShouldCreateSubsystem(UObject* Outer) const
 	return false;
 }
 
-void UFoostepPoolingManager::SafeSpawnPooledActor()
+void UFootstepPoolingManager::Deinitialize()
+{
+	DestroyFootstepPool(GetWorld());
+	
+	Super::Deinitialize();
+}
+
+bool UFootstepPoolingManager::SafeSpawnPooledActor()
 {
 	if (const USurfaceFootstepSystemSettings* FootstepSettings = USurfaceFootstepSystemSettings::Get())
 	{
@@ -54,13 +61,17 @@ void UFoostepPoolingManager::SafeSpawnPooledActor()
 			AFootstepActor* FootstepActor = GetWorld()->SpawnActor<AFootstepActor>(AFootstepActor::StaticClass(), FTransform(), SpawnParams);
 
 			PooledActors.Add(FootstepActor);
+
+			return true;
 		}
 	}
+
+	return false;
 }
 
-void UFoostepPoolingManager::DestroyPooledActors()
+void UFootstepPoolingManager::DestroyPooledActors()
 {
-	for (AFootstepActor* PooledActor : PooledActors)
+	for (TObjectPtr<AFootstepActor>& PooledActor : PooledActors)
 	{
 		if (PooledActor)
 		{
@@ -68,22 +79,22 @@ void UFoostepPoolingManager::DestroyPooledActors()
 		}
 	}
 
-	PooledActors.Empty();
+	PooledActors.Reset();
 }
 
-AFootstepActor* UFoostepPoolingManager::GetPooledActor()
+AFootstepActor* UFootstepPoolingManager::GetPooledActor()
 {
-	for (AFootstepActor* PooledActor : PooledActors)
+	for (const TObjectPtr<AFootstepActor>& PooledActor : PooledActors)
 	{
 		if (PooledActor && !PooledActor->IsPoolingActive())
 		{
-			return PooledActor;
+			return PooledActor.Get();
 		}
 	}
 
 	if (PooledActors.Num() > 0)
 	{
-		AFootstepActor* PooledActor = PooledActors[0];
+		AFootstepActor* PooledActor = PooledActors[0].Get();
 		PooledActors.Add(PooledActor);
 		PooledActors.RemoveAt(0);
 

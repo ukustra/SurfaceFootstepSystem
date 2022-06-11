@@ -1,4 +1,4 @@
-// Copyright 2019-2020 Urszula Kustra. All Rights Reserved.
+// Copyright 2019-2022 Urszula Kustra. All Rights Reserved.
 
 #pragma once
 
@@ -23,13 +23,13 @@ class SURFACEFOOTSTEPSYSTEM_API AFootstepActor final : public AActor
 	
 private:
 	UPROPERTY()
-	UAudioComponent* AudioComponent;
+	TObjectPtr<UAudioComponent> AudioComponent;
 
 	UPROPERTY()
-	UParticleSystemComponent* ParticleComponent;
+	TObjectPtr<UParticleSystemComponent> ParticleComponent;
 
 	UPROPERTY()
-	UNiagaraComponent* NiagaraComponent;
+	TObjectPtr<UNiagaraComponent> NiagaraComponent;
 
 public:
 	//~ Begin AActor interface

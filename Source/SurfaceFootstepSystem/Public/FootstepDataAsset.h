@@ -1,4 +1,4 @@
-// Copyright 2019-2020 Urszula Kustra. All Rights Reserved.
+// Copyright 2019-2022 Urszula Kustra. All Rights Reserved.
 
 #pragma once
 
@@ -19,15 +19,15 @@ struct FFootstepData
 
 	/** Sound will be played randomly. */
 	UPROPERTY(EditDefaultsOnly, Category = "Footstep|Sound")
-	TArray<USoundBase*> Sounds;
+	TArray<TSoftObjectPtr<USoundBase>> Sounds;
 
 	/** A particle will be taken randomly from both Particles and Niagara Particles arrays. */
 	UPROPERTY(EditDefaultsOnly, Category = "Footstep|Particle")
-	TArray<UParticleSystem*> Particles;
+	TArray<TSoftObjectPtr<UParticleSystem>> Particles;
 
 	/** A particle will be taken randomly from both Particles and Niagara Particles arrays. */
 	UPROPERTY(EditDefaultsOnly, Category = "Footstep|Particle")
-	TArray<UNiagaraSystem*> NiagaraParticles;
+	TArray<TSoftObjectPtr<UNiagaraSystem>> NiagaraParticles;
 };
 
 /**
@@ -61,11 +61,11 @@ protected:
 
 	/** If none, Attenuation Settings from the Sound Base will be applied. */
 	UPROPERTY(EditDefaultsOnly, Category = "Footstep|Sound")
-	USoundAttenuation* AttenuationSettingsOverride;
+	TObjectPtr<USoundAttenuation> AttenuationSettingsOverride;
 
 	/** If none, Concurrency Settings from the Sound Base will be applied. */
 	UPROPERTY(EditDefaultsOnly, Category = "Footstep|Sound")
-	USoundConcurrency* ConcurrencySettingsOverride;
+	TObjectPtr<USoundConcurrency> ConcurrencySettingsOverride;
 
 	/** Minimum scale of the Particle. */
 	UPROPERTY(EditDefaultsOnly, Category = "Footstep|Particle", meta = (ClampMin = 0.0))
@@ -93,7 +93,7 @@ public:
 
 private:
 	UPROPERTY()
-	USurfaceFootstepSystemSettings* FootstepSettings;
+	TObjectPtr<USurfaceFootstepSystemSettings> FootstepSettings;
 
 	void PrintEditorError() const;
 	void PrintEditorWarning() const;

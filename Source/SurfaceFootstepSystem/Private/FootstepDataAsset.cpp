@@ -1,4 +1,4 @@
-// Copyright 2019-2020 Urszula Kustra. All Rights Reserved.
+// Copyright 2019-2022 Urszula Kustra. All Rights Reserved.
 
 #include "FootstepDataAsset.h"
 #include "SurfaceFootstepSystemSettings.h"
@@ -53,8 +53,8 @@ USoundBase* UFootstepDataAsset::GetSound(const FGameplayTag& CategoryTag) const
 	}
 	else if (FootstepData.Contains(CategoryTag))
 	{
-		const TArray<USoundBase*>& Sounds = FootstepData[CategoryTag].Sounds;
-		return Sounds.Num() > 0 ? Sounds[FMath::RandHelper(Sounds.Num())] : nullptr;
+		const TArray<TSoftObjectPtr<USoundBase>>& Sounds = FootstepData[CategoryTag].Sounds;
+		return Sounds.Num() > 0 ? Sounds[FMath::RandHelper(Sounds.Num())].LoadSynchronous() : nullptr;
 	}
 	else
 	{
@@ -76,12 +76,12 @@ float UFootstepDataAsset::GetPitch() const
 
 USoundAttenuation* UFootstepDataAsset::GetAttenuationOverride() const
 {
-	return AttenuationSettingsOverride;
+	return AttenuationSettingsOverride.Get();
 }
 
 USoundConcurrency* UFootstepDataAsset::GetConcurrencyOverride() const
 {
-	return ConcurrencySettingsOverride;
+	return ConcurrencySettingsOverride.Get();
 }
 
 UObject* UFootstepDataAsset::GetParticle(const FGameplayTag& CategoryTag) const
@@ -94,11 +94,11 @@ UObject* UFootstepDataAsset::GetParticle(const FGameplayTag& CategoryTag) const
 	}
 	else if (FootstepData.Contains(CategoryTag))
 	{
-		TArray<UObject*> ActualParticles;
+		TArray<TSoftObjectPtr<UObject>> ActualParticles;
 		ActualParticles.Append(FootstepData[CategoryTag].Particles);
 		ActualParticles.Append(FootstepData[CategoryTag].NiagaraParticles);
 
-		return ActualParticles.Num() > 0 ? ActualParticles[FMath::RandHelper(ActualParticles.Num())] : nullptr;
+		return ActualParticles.Num() > 0 ? ActualParticles[FMath::RandHelper(ActualParticles.Num())].LoadSynchronous() : nullptr;
 	}
 	else
 	{

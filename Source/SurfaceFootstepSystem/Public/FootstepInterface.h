@@ -1,4 +1,4 @@
-// Copyright 2019-2020 Urszula Kustra. All Rights Reserved.
+// Copyright 2019-2022 Urszula Kustra. All Rights Reserved.
 
 #pragma once
 
@@ -7,7 +7,7 @@
 #include "FootstepInterface.generated.h"
 
 class UFootstepComponent;
-class UFoostepPoolingManager;
+class UFootstepPoolingManager;
 
 UINTERFACE(BlueprintType)
 class UFootstepInterface : public UInterface

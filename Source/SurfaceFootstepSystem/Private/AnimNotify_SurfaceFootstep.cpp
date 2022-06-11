@@ -1,4 +1,4 @@
-// Copyright 2019-2020 Urszula Kustra. All Rights Reserved.
+// Copyright 2019-2022 Urszula Kustra. All Rights Reserved.
 
 #include "AnimNotify_SurfaceFootstep.h"
 #include "FootstepInterface.h"
@@ -6,7 +6,7 @@
 #include "FootstepActor.h"
 #include "FootstepDataAsset.h"
 #include "SurfaceFootstepSystemSettings.h"
-#include "FoostepPoolingManager.h"
+#include "FootstepPoolingManager.h"
 #include "FootstepTypes.h"
 #include "Engine.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
@@ -49,7 +49,7 @@ void UAnimNotify_SurfaceFootstep::Notify(USkeletalMeshComponent* MeshComp, UAnim
 		return;
 	}
 
-	UFoostepPoolingManager* PoolingManager = MeshComp->GetWorld()->GetSubsystem<UFoostepPoolingManager>();
+	UFootstepPoolingManager* PoolingManager = MeshComp->GetWorld()->GetSubsystem<UFootstepPoolingManager>();
 
 	if (!PoolingManager)
 	{

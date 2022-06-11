@@ -1,4 +1,4 @@
-// Copyright 2019-2020 Urszula Kustra. All Rights Reserved.
+// Copyright 2019-2022 Urszula Kustra. All Rights Reserved.
 
 #pragma once
 
@@ -54,7 +54,7 @@ public:
 
 private:
 	UPROPERTY()
-	USurfaceFootstepSystemSettings* FootstepSettings;
+	TObjectPtr<USurfaceFootstepSystemSettings> FootstepSettings;
 
 	bool TraceFromFootSocket() const;
 	UPhysicalMaterial* GetPhysicalMaterial(const FHitResult& HitResult) const;

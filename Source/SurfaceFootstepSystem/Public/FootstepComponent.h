@@ -1,4 +1,4 @@
-// Copyright 2019-2020 Urszula Kustra. All Rights Reserved.
+// Copyright 2019-2022 Urszula Kustra. All Rights Reserved.
 
 #pragma once
 
@@ -62,8 +62,8 @@ public:
 
 private:
 	UPROPERTY()
-	USurfaceFootstepSystemSettings* FootstepSettings;
+	TObjectPtr<USurfaceFootstepSystemSettings> FootstepSettings;
 
 	UPROPERTY()
-	TArray<AActor*> ActorsToIgnore;
+	TArray<TObjectPtr<AActor>> ActorsToIgnore;
 };
