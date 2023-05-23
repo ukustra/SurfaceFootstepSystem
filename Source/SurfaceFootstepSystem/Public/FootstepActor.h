@@ -1,4 +1,4 @@
-// Copyright 2019-2022 Urszula Kustra. All Rights Reserved.
+// Copyright 2019-2023 Urszula Kustra. All Rights Reserved.
 
 #pragma once
 
@@ -11,6 +11,7 @@ class USoundAttenuation;
 class USoundConcurrency;
 class UParticleSystemComponent;
 class UNiagaraComponent;
+class UFXSystemAsset;
 class UNiagaraSystem;
 
 /**
@@ -41,7 +42,7 @@ public:
 	bool IsPoolingActive() const;
 
 	void InitSound(USoundBase* Sound, float Volume, float Pitch, bool bIs2D, USoundAttenuation* AttenuationOverride = nullptr, USoundConcurrency* ConcurrencyOverride = nullptr) const;
-	void InitParticle(UObject* Particle, const FVector RelativeScale) const;
+	void InitParticle(UFXSystemAsset* Particle, const FVector& RelativeScale) const;
 
 private:
 	FName UseComponentTag;

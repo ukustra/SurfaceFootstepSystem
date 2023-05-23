@@ -1,4 +1,4 @@
-// Copyright 2019-2022 Urszula Kustra. All Rights Reserved.
+// Copyright 2019-2023 Urszula Kustra. All Rights Reserved.
 
 #pragma once
 
@@ -29,11 +29,14 @@ public:
 
 	bool SafeSpawnPooledActor();
 	void DestroyPooledActors();
-	AFootstepActor* GetPooledActor();
+	AFootstepActor* GetPooledActor(bool bRemoveInvalidActors);
 
 	UFootstepPoolingManager();
 
+protected:
+	void RemoveInvalidActors();
+
 private:
-	UPROPERTY()
-	TArray<TObjectPtr<AFootstepActor>> PooledActors;
+	UPROPERTY(Transient)
+	TArray<TWeakObjectPtr<AFootstepActor>> PooledActors;
 };

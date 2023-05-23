@@ -1,4 +1,4 @@
-// Copyright 2019-2022 Urszula Kustra. All Rights Reserved.
+// Copyright 2019-2023 Urszula Kustra. All Rights Reserved.
 
 #pragma once
 
@@ -8,7 +8,7 @@
  * Editor settings for the Surface Footstep System plugin.
  */
 UCLASS(config = Plugins, defaultconfig)
-class SURFACEFOOTSTEPSYSTEM_API USurfaceFootstepSystemSettings : public UObject
+class SURFACEFOOTSTEPSYSTEM_API USurfaceFootstepSystemSettings final : public UObject
 {
 	GENERATED_UCLASS_BODY()
 	

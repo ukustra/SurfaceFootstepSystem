@@ -1,4 +1,4 @@
-// Copyright 2019-2022 Urszula Kustra. All Rights Reserved.
+// Copyright 2019-2023 Urszula Kustra. All Rights Reserved.
 
 #include "SurfaceFootstepSystemSettings.h"
 #include "GameplayTagContainer.h"

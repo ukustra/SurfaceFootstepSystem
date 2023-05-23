@@ -1,7 +1,7 @@
 {
 	"FileVersion": 3,
 	"Version": 1,
-	"VersionName": "1.0.2",
+	"VersionName": "1.0.3",
 	"FriendlyName": "Surface Footstep System",
 	"Description": "A plugin for generating different footstep FXes, depending on the Surface Type.",
 	"Category": "FX",
@@ -10,7 +10,7 @@
 	"DocsURL": "https://www.dropbox.com/s/o9r59lta0mxahph/SFS_Docs.pdf",
 	"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/content/d605a2cceb8546b39accf458c022b0df",
 	"SupportURL": "",
-	"EngineVersion": "5.0.0",
+	"EngineVersion": "5.2.0",
 	"CanContainContent": true,
 	"Installed": true,
 	"Modules": [

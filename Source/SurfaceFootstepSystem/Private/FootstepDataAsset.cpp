@@ -1,11 +1,14 @@
-// Copyright 2019-2022 Urszula Kustra. All Rights Reserved.
+// Copyright 2019-2023 Urszula Kustra. All Rights Reserved.
 
 #include "FootstepDataAsset.h"
+#include "NiagaraSystem.h"
 #include "SurfaceFootstepSystemSettings.h"
+#include "Engine/AssetManager.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Sound/SoundAttenuation.h"
 #include "Sound/SoundConcurrency.h"
 #include "Logging/MessageLog.h"
+#include "Particles/ParticleSystem.h"
 
 #define LOCTEXT_NAMESPACE "FFootstepDataAsset"
 
@@ -43,6 +46,57 @@ UFootstepDataAsset::UFootstepDataAsset(const FObjectInitializer& ObjectInitializ
 	}
 }
 
+bool FFootstepData::AreSoundsValid() const
+{
+	for (const TSoftObjectPtr<USoundBase>& Sound : Sounds)
+	{
+		if (Sound.IsNull())
+		{
+			return false;
+		}
+	}
+
+	return !Sounds.IsEmpty();
+}
+
+void UFootstepDataAsset::RequestLoadingAssetsAsynchronously()
+{
+	FStreamableManager& StreamableManager = UAssetManager::GetStreamableManager();
+	auto RequestAsyncLoad = [&StreamableManager](const TSoftObjectPtr<UObject>& Asset)
+	{
+		if (Asset.IsPending())
+		{
+			StreamableManager.RequestAsyncLoad(Asset.ToSoftObjectPath());
+		}
+	};
+	
+	for (const auto& It : FootstepData)
+	{
+		const FFootstepData& Data = It.Value;
+
+		if (Data.AreSoundsValid())
+		{
+			for (const TSoftObjectPtr<USoundBase>& Sound : Data.Sounds)
+			{
+				RequestAsyncLoad(Sound);
+			}
+
+			RequestAsyncLoad(AttenuationSettingsOverride);
+			RequestAsyncLoad(ConcurrencySettingsOverride);
+		}
+
+		for (const TSoftObjectPtr<UParticleSystem>& Particle : Data.Particles)
+		{
+			RequestAsyncLoad(Particle);
+		}
+
+		for (const TSoftObjectPtr<UNiagaraSystem>& Niagara : Data.NiagaraParticles)
+		{
+			RequestAsyncLoad(Niagara);
+		}
+	}
+}
+
 USoundBase* UFootstepDataAsset::GetSound(const FGameplayTag& CategoryTag) const
 {
 	if (!FootstepSettings) { return nullptr; }
@@ -76,15 +130,15 @@ float UFootstepDataAsset::GetPitch() const
 
 USoundAttenuation* UFootstepDataAsset::GetAttenuationOverride() const
 {
-	return AttenuationSettingsOverride.Get();
+	return AttenuationSettingsOverride.LoadSynchronous();
 }
 
 USoundConcurrency* UFootstepDataAsset::GetConcurrencyOverride() const
 {
-	return ConcurrencySettingsOverride.Get();
+	return ConcurrencySettingsOverride.LoadSynchronous();
 }
 
-UObject* UFootstepDataAsset::GetParticle(const FGameplayTag& CategoryTag) const
+UFXSystemAsset* UFootstepDataAsset::GetParticle(const FGameplayTag& CategoryTag) const
 {
 	if (!FootstepSettings) { return nullptr; }
 
@@ -94,7 +148,7 @@ UObject* UFootstepDataAsset::GetParticle(const FGameplayTag& CategoryTag) const
 	}
 	else if (FootstepData.Contains(CategoryTag))
 	{
-		TArray<TSoftObjectPtr<UObject>> ActualParticles;
+		TArray<TSoftObjectPtr<UFXSystemAsset>> ActualParticles;
 		ActualParticles.Append(FootstepData[CategoryTag].Particles);
 		ActualParticles.Append(FootstepData[CategoryTag].NiagaraParticles);
 

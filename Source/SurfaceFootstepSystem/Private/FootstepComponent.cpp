@@ -1,7 +1,9 @@
-// Copyright 2019-2022 Urszula Kustra. All Rights Reserved.
+// Copyright 2019-2023 Urszula Kustra. All Rights Reserved.
 
 #include "FootstepComponent.h"
+#include "FootstepDataAsset.h"
 #include "SurfaceFootstepSystemSettings.h"
+#include "Engine/AssetManager.h"
 #include "GameFramework/Controller.h"
 
 #if ENABLE_DRAW_DEBUG
@@ -21,6 +23,20 @@ UFootstepComponent::UFootstepComponent(const FObjectInitializer& ObjectInitializ
 	{
 		TraceLength = FootstepSettings->GetDefaultTraceLength();
 	}
+}
+
+void UFootstepComponent::OnRegister()
+{
+	Super::OnRegister();
+
+	TryPreloading();
+}
+
+void UFootstepComponent::OnUnregister()
+{
+	CancelPreloading();
+	
+	Super::OnUnregister();
 }
 
 bool UFootstepComponent::GetPlaySound2D() const
@@ -132,7 +148,7 @@ bool UFootstepComponent::CreateFootstepLineTrace(const FVector& Start, const FVe
 
 }
 
-UFootstepDataAsset* UFootstepComponent::GetFootstepData(EPhysicalSurface SurfaceType) const
+UFootstepDataAsset* UFootstepComponent::GetFootstepData(const EPhysicalSurface SurfaceType) const
 {
 	return FootstepFXes.Contains(SurfaceType) ? FootstepFXes[SurfaceType].LoadSynchronous() : nullptr;
 }
@@ -149,4 +165,49 @@ bool UFootstepComponent::GetShowDebug() const
 #endif
 
 	return false;
+}
+
+void UFootstepComponent::TryPreloading()
+{
+	if ( !(bPreloadAssetsAsynchronously && !bPreloading) )
+	{
+		return;
+	}
+
+	const UWorld* World = GetWorld();
+
+	if ( !(World && World->IsGameWorld()) )
+	{
+		return;
+	}
+
+	bPreloading = true;
+
+	FStreamableManager& StreamableManager = UAssetManager::GetStreamableManager();
+	auto RequestAsyncLoad = [this, &StreamableManager](const EPhysicalSurface SurfaceType, const TSoftObjectPtr<UObject>& Asset)
+	{
+		if (Asset.IsPending())
+		{
+			StreamableManager.RequestAsyncLoad(Asset.ToSoftObjectPath(), FStreamableDelegate::CreateWeakLambda(this, [this, SurfaceType]()
+			{
+				if (UFootstepDataAsset* DataAsset = GetFootstepData(SurfaceType))
+				{
+					DataAsset->RequestLoadingAssetsAsynchronously();
+				}
+			}));
+		}
+	};
+
+	for (const auto& It : FootstepFXes)
+	{
+		const EPhysicalSurface SurfaceType = It.Key;
+		const TSoftObjectPtr<UFootstepDataAsset>& DataAsset = It.Value;
+
+		RequestAsyncLoad(SurfaceType, DataAsset);
+	}
+}
+
+void UFootstepComponent::CancelPreloading()
+{
+	bPreloading = false;
 }

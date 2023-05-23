@@ -1,9 +1,10 @@
-// Copyright 2019-2022 Urszula Kustra. All Rights Reserved.
+// Copyright 2019-2023 Urszula Kustra. All Rights Reserved.
 
 #include "FootstepActor.h"
 #include "Components/AudioComponent.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "NiagaraComponent.h"
+#include "Particles/ParticleSystem.h"
 
 AFootstepActor::AFootstepActor(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -132,7 +133,7 @@ void AFootstepActor::InitSound(USoundBase* Sound, float Volume, float Pitch, boo
 	AudioComponent->ComponentTags.AddUnique(UseComponentTag);
 }
 
-void AFootstepActor::InitParticle(UObject* Particle, const FVector RelativeScale) const
+void AFootstepActor::InitParticle(UFXSystemAsset* Particle, const FVector& RelativeScale) const
 {
 	if (!Particle) { return; }
 

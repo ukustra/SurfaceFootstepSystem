@@ -1,4 +1,4 @@
-// Copyright 2019-2022 Urszula Kustra. All Rights Reserved.
+// Copyright 2019-2023 Urszula Kustra. All Rights Reserved.
 
 #pragma once
 
@@ -9,6 +9,8 @@
 
 class USoundAttenuation;
 class USoundConcurrency;
+class UFXSystemAsset;
+class UParticleSystem;
 class UNiagaraSystem;
 class USurfaceFootstepSystemSettings;
 
@@ -28,6 +30,8 @@ struct FFootstepData
 	/** A particle will be taken randomly from both Particles and Niagara Particles arrays. */
 	UPROPERTY(EditDefaultsOnly, Category = "Footstep|Particle")
 	TArray<TSoftObjectPtr<UNiagaraSystem>> NiagaraParticles;
+	
+	bool AreSoundsValid() const;
 };
 
 /**
@@ -61,11 +65,11 @@ protected:
 
 	/** If none, Attenuation Settings from the Sound Base will be applied. */
 	UPROPERTY(EditDefaultsOnly, Category = "Footstep|Sound")
-	TObjectPtr<USoundAttenuation> AttenuationSettingsOverride;
+	TSoftObjectPtr<USoundAttenuation> AttenuationSettingsOverride;
 
 	/** If none, Concurrency Settings from the Sound Base will be applied. */
 	UPROPERTY(EditDefaultsOnly, Category = "Footstep|Sound")
-	TObjectPtr<USoundConcurrency> ConcurrencySettingsOverride;
+	TSoftObjectPtr<USoundConcurrency> ConcurrencySettingsOverride;
 
 	/** Minimum scale of the Particle. */
 	UPROPERTY(EditDefaultsOnly, Category = "Footstep|Particle", meta = (ClampMin = 0.0))
@@ -80,13 +84,15 @@ protected:
 	float FootstepLifeSpan;
 
 public:
+	void RequestLoadingAssetsAsynchronously();
+	
 	USoundBase* GetSound(const FGameplayTag& CategoryTag) const;
 	float GetVolume() const;
 	float GetPitch() const;
 	USoundAttenuation* GetAttenuationOverride() const;
 	USoundConcurrency* GetConcurrencyOverride() const;
 
-	UObject* GetParticle(const FGameplayTag& CategoryTag) const;
+	UFXSystemAsset* GetParticle(const FGameplayTag& CategoryTag) const;
 	FVector GetRelScaleParticle() const;
 
 	float GetFootstepLifeSpan() const;

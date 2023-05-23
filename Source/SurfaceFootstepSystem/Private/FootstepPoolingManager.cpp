@@ -1,15 +1,31 @@
-// Copyright 2019-2022 Urszula Kustra. All Rights Reserved.
+// Copyright 2019-2023 Urszula Kustra. All Rights Reserved.
 
 #include "FootstepPoolingManager.h"
 #include "SurfaceFootstepSystemSettings.h"
 #include "FootstepActor.h"
-#include "Logging/MessageLog.h"
-
-#define LOCTEXT_NAMESPACE "FFootstepPoolingManager"
 
 UFootstepPoolingManager::UFootstepPoolingManager()
 	: Super()
 {
+}
+
+void UFootstepPoolingManager::RemoveInvalidActors()
+{
+	TArray<int32> EmptyIndexes;
+	
+	for (int32 i = 0; i < PooledActors.Num(); ++i)
+	{
+		const TWeakObjectPtr<AFootstepActor> Actor = PooledActors[i];
+		if (!Actor.IsValid())
+		{
+			EmptyIndexes.Add(i);
+		}
+	}
+
+	for (const int32 Index : EmptyIndexes)
+	{
+		PooledActors.RemoveAt(Index);
+	}
 }
 
 void UFootstepPoolingManager::DestroyFootstepPool(const UObject* WorldContextObject)
@@ -49,6 +65,8 @@ bool UFootstepPoolingManager::SafeSpawnPooledActor()
 {
 	if (const USurfaceFootstepSystemSettings* FootstepSettings = USurfaceFootstepSystemSettings::Get())
 	{
+		RemoveInvalidActors();
+		
 		if (PooledActors.Num() < FootstepSettings->GetPoolSize())
 		{
 			const FActorSpawnParameters SpawnParams = Invoke([]()->FActorSpawnParameters const {
@@ -58,7 +76,7 @@ bool UFootstepPoolingManager::SafeSpawnPooledActor()
 				return Params;
 			});
 
-			AFootstepActor* FootstepActor = GetWorld()->SpawnActor<AFootstepActor>(AFootstepActor::StaticClass(), FTransform(), SpawnParams);
+			const TWeakObjectPtr<AFootstepActor> FootstepActor = GetWorld()->SpawnActor<AFootstepActor>(AFootstepActor::StaticClass(), FTransform(), SpawnParams);
 
 			PooledActors.Add(FootstepActor);
 
@@ -71,10 +89,11 @@ bool UFootstepPoolingManager::SafeSpawnPooledActor()
 
 void UFootstepPoolingManager::DestroyPooledActors()
 {
-	for (TObjectPtr<AFootstepActor>& PooledActor : PooledActors)
+	for (const TWeakObjectPtr<AFootstepActor>& Actor : PooledActors)
 	{
-		if (PooledActor)
+		if (Actor.IsValid())
 		{
+			AFootstepActor* PooledActor = Actor.Get();
 			PooledActor->Destroy();
 		}
 	}
@@ -82,26 +101,36 @@ void UFootstepPoolingManager::DestroyPooledActors()
 	PooledActors.Reset();
 }
 
-AFootstepActor* UFootstepPoolingManager::GetPooledActor()
+AFootstepActor* UFootstepPoolingManager::GetPooledActor(bool bRemoveInvalidActors)
 {
-	for (const TObjectPtr<AFootstepActor>& PooledActor : PooledActors)
+	if (bRemoveInvalidActors)
 	{
-		if (PooledActor && !PooledActor->IsPoolingActive())
+		RemoveInvalidActors();
+	}
+	
+	for (const TWeakObjectPtr<AFootstepActor>& Actor : PooledActors)
+	{
+		if (Actor.IsValid())
 		{
-			return PooledActor.Get();
+			AFootstepActor* PooledActor = Actor.Get();
+			if (!PooledActor->IsPoolingActive())
+			{
+				return PooledActor;
+			}
 		}
 	}
 
 	if (PooledActors.Num() > 0)
 	{
-		AFootstepActor* PooledActor = PooledActors[0].Get();
-		PooledActors.Add(PooledActor);
-		PooledActors.RemoveAt(0);
+		const TWeakObjectPtr<AFootstepActor> PooledActor = PooledActors[0];
+		if (PooledActor.IsValid())
+		{
+			PooledActors.Add(PooledActor);
+			PooledActors.RemoveAt(0);
 
-		return PooledActor;
+			return PooledActor.Get();
+		}
 	}
 
 	return nullptr;
 }
-
-#undef LOCTEXT_NAMESPACE

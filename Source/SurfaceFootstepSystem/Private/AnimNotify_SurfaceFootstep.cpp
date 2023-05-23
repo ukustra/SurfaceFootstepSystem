@@ -1,4 +1,4 @@
-// Copyright 2019-2022 Urszula Kustra. All Rights Reserved.
+// Copyright 2019-2023 Urszula Kustra. All Rights Reserved.
 
 #include "AnimNotify_SurfaceFootstep.h"
 #include "FootstepInterface.h"
@@ -124,7 +124,22 @@ void UAnimNotify_SurfaceFootstep::Notify(USkeletalMeshComponent* MeshComp, UAnim
 	if (!(bTracePerformed && TraceHitResult.bBlockingHit)) { return; }
 
 	// Get the Physical Material from the TraceHitResult
-	const UPhysicalMaterial* PhysMat = GetPhysicalMaterial(TraceHitResult);
+	const UPhysicalMaterial* PhysMat = Invoke([&TraceHitResult]()->UPhysicalMaterial* const
+	{
+		if (TraceHitResult.PhysMaterial.IsValid())
+		{
+			return TraceHitResult.PhysMaterial.Get();
+		}
+		if (TraceHitResult.Component.IsValid())
+		{
+			if (const FBodyInstance* BodyInstance = TraceHitResult.GetComponent()->GetBodyInstance())
+			{
+				return BodyInstance->GetSimplePhysicalMaterial();
+			}
+		}
+
+		return nullptr;
+	});
 
 	if (!PhysMat) { return; }
 
@@ -147,14 +162,15 @@ void UAnimNotify_SurfaceFootstep::Notify(USkeletalMeshComponent* MeshComp, UAnim
 		}
 
 		USoundBase* FootstepSound = FootstepData->GetSound(FootstepCategory);
-		UObject* FootstepParticle = FootstepData->GetParticle(FootstepCategory);
+		UFXSystemAsset* FootstepParticle = FootstepData->GetParticle(FootstepCategory);
 		
 		// Finally, activate a footstep actor
 		if (FootstepSound || FootstepParticle)
 		{
 			PoolingManager->SafeSpawnPooledActor();
 
-			if (AFootstepActor* FootstepActor = PoolingManager->GetPooledActor())
+			constexpr bool bRemoveInvalidActors = false;
+			if (AFootstepActor* FootstepActor = PoolingManager->GetPooledActor(bRemoveInvalidActors))
 			{
 				FootstepActor->SetPoolingActive(false);
 
@@ -189,23 +205,6 @@ FString UAnimNotify_SurfaceFootstep::GetNotifyName_Implementation() const
 bool UAnimNotify_SurfaceFootstep::TraceFromFootSocket() const
 {
 	return bTraceFromFootSocket && FootSocket != NAME_None;
-}
-
-UPhysicalMaterial* UAnimNotify_SurfaceFootstep::GetPhysicalMaterial(const FHitResult& HitResult) const
-{
-	if (HitResult.PhysMaterial.IsValid())
-	{
-		return HitResult.PhysMaterial.Get();
-	}
-	else if (HitResult.Component.IsValid())
-	{
-		if (const FBodyInstance* BodyInstance = HitResult.GetComponent()->GetBodyInstance())
-		{
-			return BodyInstance->GetSimplePhysicalMaterial();
-		}
-	}
-
-	return nullptr;
 }
 
 FString UAnimNotify_SurfaceFootstep::GetActorName(const AActor* Actor) const

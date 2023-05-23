@@ -1,4 +1,4 @@
-// Copyright 2019-2022 Urszula Kustra. All Rights Reserved.
+// Copyright 2019-2023 Urszula Kustra. All Rights Reserved.
 
 #pragma once
 
@@ -29,9 +29,18 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Surface Footstep System", meta = (ClampMin = 0.f))
 	float TraceLength;
 
+	/** Will preload all footstep assets (Data Assets, Sounds, VFXes) asynchronously during registering the component and keep them in memory. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, AdvancedDisplay, Category = "Surface Footstep System")
+	bool bPreloadAssetsAsynchronously;
+	
 	/** Draws a trace which searches for the object at which footstep should be spawned (won't work in Shipping and Testing builds) and prints the debug message both in a log and on the screen. */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Surface Footstep System")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, AdvancedDisplay, Category = "Surface Footstep System")
 	bool bShowDebug;
+
+	//~ Begin UActorComponent Interface
+	virtual void OnRegister() override;
+	virtual void OnUnregister() override;
+	//~ End UActorComponent Interface
 
 public:
 	/** Called when a new Footstep Actor is generated. */
@@ -55,7 +64,7 @@ public:
 	bool RemoveActorToIgnoreForTrace(AActor* ActorToRemove);
 
 	bool CreateFootstepLineTrace(const FVector& Start, const FVector& DirectionNormalVector, FHitResult& OutHit) const;
-	UFootstepDataAsset* GetFootstepData(EPhysicalSurface SurfaceType) const;
+	UFootstepDataAsset* GetFootstepData(const EPhysicalSurface SurfaceType) const;
 
 	float GetTraceLength() const;
 	bool GetShowDebug() const;
@@ -66,4 +75,9 @@ private:
 
 	UPROPERTY()
 	TArray<TObjectPtr<AActor>> ActorsToIgnore;
+
+	bool bPreloading;
+
+	void TryPreloading();
+	void CancelPreloading();
 };
