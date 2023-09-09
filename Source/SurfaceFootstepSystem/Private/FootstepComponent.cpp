@@ -7,7 +7,7 @@
 #include "GameFramework/Controller.h"
 
 #if ENABLE_DRAW_DEBUG
-#include "Engine/Private/KismetTraceUtils.h"
+#include "KismetTraceUtils.h"
 #endif
 
 UFootstepComponent::UFootstepComponent(const FObjectInitializer& ObjectInitializer)

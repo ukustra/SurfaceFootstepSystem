@@ -15,16 +15,16 @@ void UFootstepPoolingManager::RemoveInvalidActors()
 	
 	for (int32 i = 0; i < PooledActors.Num(); ++i)
 	{
-		const TWeakObjectPtr<AFootstepActor> Actor = PooledActors[i];
+		const TWeakObjectPtr<AFootstepActor>& Actor = PooledActors[i];
 		if (!Actor.IsValid())
 		{
 			EmptyIndexes.Add(i);
 		}
 	}
 
-	for (const int32 Index : EmptyIndexes)
+	for (int32 i = EmptyIndexes.Num() - 1; i >= 0; --i)
 	{
-		PooledActors.RemoveAt(Index);
+		PooledActors.RemoveAt(EmptyIndexes[i]);
 	}
 }
 
