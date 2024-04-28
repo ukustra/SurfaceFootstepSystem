@@ -1,10 +1,12 @@
-// Copyright 2019-2023 Urszula Kustra. All Rights Reserved.
+// Copyright 2019-2024 Urszula Kustra. All Rights Reserved.
 
 #include "FootstepActor.h"
 #include "Components/AudioComponent.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "NiagaraComponent.h"
+#include "NiagaraSystem.h"
 #include "Particles/ParticleSystem.h"
+#include "TimerManager.h"
 
 AFootstepActor::AFootstepActor(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)

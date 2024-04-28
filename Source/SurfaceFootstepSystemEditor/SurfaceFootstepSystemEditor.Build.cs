@@ -20,6 +20,7 @@ public class SurfaceFootstepSystemEditor : ModuleRules
 			{
 				"Core",
                 "SurfaceFootstepSystem",
+                "AssetTools"
 			}
 			);
 			

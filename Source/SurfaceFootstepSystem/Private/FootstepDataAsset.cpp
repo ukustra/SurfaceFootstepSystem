@@ -1,10 +1,11 @@
-// Copyright 2019-2023 Urszula Kustra. All Rights Reserved.
+// Copyright 2019-2024 Urszula Kustra. All Rights Reserved.
 
 #include "FootstepDataAsset.h"
 #include "NiagaraSystem.h"
 #include "SurfaceFootstepSystemSettings.h"
 #include "Engine/AssetManager.h"
 #include "UObject/ConstructorHelpers.h"
+#include "Sound/SoundBase.h"
 #include "Sound/SoundAttenuation.h"
 #include "Sound/SoundConcurrency.h"
 #include "Logging/MessageLog.h"

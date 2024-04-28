@@ -1,4 +1,4 @@
-// Copyright 2019-2023 Urszula Kustra. All Rights Reserved.
+// Copyright 2019-2024 Urszula Kustra. All Rights Reserved.
 
 #pragma once
 
@@ -7,6 +7,7 @@
 #include "GameplayTagContainer.h"
 #include "FootstepDataAsset.generated.h"
 
+class USoundBase;
 class USoundAttenuation;
 class USoundConcurrency;
 class UFXSystemAsset;

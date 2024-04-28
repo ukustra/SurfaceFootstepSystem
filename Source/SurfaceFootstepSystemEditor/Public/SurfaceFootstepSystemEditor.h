@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "IAssetTypeActions.h"
+#include "AssetTypeCategories.h"
 #include "Modules/ModuleManager.h"
 
 class FSurfaceFootstepSystemEditorModule : public IModuleInterface

@@ -10,7 +10,7 @@
 	"DocsURL": "https://www.dropbox.com/s/o9r59lta0mxahph/SFS_Docs.pdf",
 	"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/content/d605a2cceb8546b39accf458c022b0df",
 	"SupportURL": "",
-	"EngineVersion": "5.3.0",
+	"EngineVersion": "5.4.0",
 	"CanContainContent": true,
 	"Installed": true,
 	"Modules": [

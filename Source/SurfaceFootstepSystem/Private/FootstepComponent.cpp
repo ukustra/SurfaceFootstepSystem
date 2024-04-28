@@ -1,10 +1,14 @@
-// Copyright 2019-2023 Urszula Kustra. All Rights Reserved.
+// Copyright 2019-2024 Urszula Kustra. All Rights Reserved.
 
 #include "FootstepComponent.h"
 #include "FootstepDataAsset.h"
 #include "SurfaceFootstepSystemSettings.h"
 #include "Engine/AssetManager.h"
+#include "GameFramework/Pawn.h"
 #include "GameFramework/Controller.h"
+#include "Engine/World.h"
+#include "CollisionQueryParams.h"
+#include "DrawDebugHelpers.h"
 
 #if ENABLE_DRAW_DEBUG
 #include "KismetTraceUtils.h"
@@ -162,9 +166,9 @@ bool UFootstepComponent::GetShowDebug() const
 {
 #if ENABLE_DRAW_DEBUG
 	return bShowDebug;
-#endif
-
+#else
 	return false;
+#endif
 }
 
 void UFootstepComponent::TryPreloading()

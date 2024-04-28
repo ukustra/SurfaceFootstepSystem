@@ -1,8 +1,10 @@
-// Copyright 2019-2023 Urszula Kustra. All Rights Reserved.
+// Copyright 2019-2024 Urszula Kustra. All Rights Reserved.
 
 #include "FootstepPoolingManager.h"
 #include "SurfaceFootstepSystemSettings.h"
 #include "FootstepActor.h"
+#include "Engine.h"
+#include "Engine/World.h"
 
 UFootstepPoolingManager::UFootstepPoolingManager()
 	: Super()
