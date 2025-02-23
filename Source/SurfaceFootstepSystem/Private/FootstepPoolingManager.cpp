@@ -15,8 +15,8 @@ void UFootstepPoolingManager::RemoveInvalidActors()
 {
 	for (int32 i = PooledActors.Num() - 1; i >= 0; --i)
 	{
-		const TWeakObjectPtr<AFootstepActor>& Actor = PooledActors[i];
-		if (!Actor.IsValid())
+		const TObjectPtr<AFootstepActor>& Actor = PooledActors[i];
+		if (!IsValid(Actor))
 		{
 			PooledActors.RemoveAt(i);
 		}
@@ -71,7 +71,7 @@ bool UFootstepPoolingManager::SafeSpawnPooledActor()
 				return Params;
 			});
 
-			const TWeakObjectPtr<AFootstepActor> FootstepActor = GetWorld()->SpawnActor<AFootstepActor>(AFootstepActor::StaticClass(), FTransform(), SpawnParams);
+			const TObjectPtr<AFootstepActor> FootstepActor = GetWorld()->SpawnActor<AFootstepActor>(AFootstepActor::StaticClass(), FTransform(), SpawnParams);
 
 			PooledActors.Add(FootstepActor);
 
@@ -84,12 +84,11 @@ bool UFootstepPoolingManager::SafeSpawnPooledActor()
 
 void UFootstepPoolingManager::DestroyPooledActors()
 {
-	for (const TWeakObjectPtr<AFootstepActor>& Actor : PooledActors)
+	for (const TObjectPtr<AFootstepActor>& Actor : PooledActors)
 	{
-		if (Actor.IsValid())
+		if (IsValid(Actor))
 		{
-			AFootstepActor* PooledActor = Actor.Get();
-			PooledActor->Destroy();
+			Actor->Destroy();
 		}
 	}
 
@@ -103,22 +102,18 @@ AFootstepActor* UFootstepPoolingManager::GetPooledActor(bool bRemoveInvalidActor
 		RemoveInvalidActors();
 	}
 	
-	for (const TWeakObjectPtr<AFootstepActor>& Actor : PooledActors)
+	for (const TObjectPtr<AFootstepActor>& Actor : PooledActors)
 	{
-		if (Actor.IsValid())
+		if (IsValid(Actor) && !Actor->IsPoolingActive())
 		{
-			AFootstepActor* PooledActor = Actor.Get();
-			if (!PooledActor->IsPoolingActive())
-			{
-				return PooledActor;
-			}
+			return Actor;
 		}
 	}
 
 	if (PooledActors.Num() > 0)
 	{
-		const TWeakObjectPtr<AFootstepActor> PooledActor = PooledActors[0];
-		if (PooledActor.IsValid())
+		const TObjectPtr<AFootstepActor> PooledActor = PooledActors[0];
+		if (IsValid(PooledActor))
 		{
 			PooledActors.Add(PooledActor);
 			PooledActors.RemoveAt(0);

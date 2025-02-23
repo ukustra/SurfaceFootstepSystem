@@ -38,5 +38,5 @@ protected:
 
 private:
 	UPROPERTY(Transient)
-	TArray<TWeakObjectPtr<AFootstepActor>> PooledActors;
+	TArray<TObjectPtr<AFootstepActor>> PooledActors;
 };
