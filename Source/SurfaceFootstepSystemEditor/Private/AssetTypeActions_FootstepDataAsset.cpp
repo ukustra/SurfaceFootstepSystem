@@ -1,4 +1,4 @@
-// Copyright 2019-2024 Urszula Kustra. All Rights Reserved.
+// Copyright Urszula Kustra. All Rights Reserved.
 
 #include "AssetTypeActions_FootstepDataAsset.h"
 #include "FootstepDataAsset.h"

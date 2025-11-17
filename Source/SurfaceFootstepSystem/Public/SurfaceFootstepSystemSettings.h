@@ -1,4 +1,4 @@
-// Copyright 2019-2024 Urszula Kustra. All Rights Reserved.
+// Copyright Urszula Kustra. All Rights Reserved.
 
 #pragma once
 
@@ -45,11 +45,11 @@ protected:
 	bool bPlaySound2D_ForLocalPlayer;
 
 	/** Used as a default asset in Footstep Data Assets. */
-	UPROPERTY(config, EditDefaultsOnly, Category = "Sound", meta = (AllowedClasses = "SoundAttenuation"))
+	UPROPERTY(config, EditDefaultsOnly, Category = "Sound", meta = (AllowedClasses = "/Script/Engine.SoundAttenuation"))
 	FSoftObjectPath DefaultAttenuationOverride;
 
 	/** Used as a default asset in Footstep Data Assets. */
-	UPROPERTY(config, EditDefaultsOnly, Category = "Sound", meta = (AllowedClasses = "SoundConcurrency"))
+	UPROPERTY(config, EditDefaultsOnly, Category = "Sound", meta = (AllowedClasses = "/Script/Engine.SoundConcurrency"))
 	FSoftObjectPath DefaultConcurrencyOverride;
 
 public:
